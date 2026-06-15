@@ -1,11 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dashboard Híbrido - Biblioteca URP</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Hola Mundo</h1>
+    <div class="sidebar">
+        <h2>URP Biblioteca</h2>
+        <p>Arquitectura Híbrida</p>
+        <hr>
+        <button class="nav-btn active" onclick="switchTab('inventario-tab')">📦 Inventario (Oracle)</button>
+        <button class="nav-btn" onclick="switchTab('prestamos-tab')">🤝 Préstamos (Oracle)</button>
+        <button class="nav-btn" onclick="switchTab('multas-tab')">💰 Multas (Oracle)</button>
+        <button class="nav-btn" onclick="switchTab('comunidad-tab')">💬 Comunidad (MongoDB)</button>
+    </div>
+
+    <div class="main-content">
+        <div id="inventario-tab" class="tab-content active">
+            <div class="header-section">
+                <h1>Control de Catálogo e Inventario</h1>
+                <p>Manejo estricto de stocks en tiempo real con aislamiento ACID en Oracle.</p>
+            </div>
+            <button class="btn btn-success" onclick="cargarLibros()">🔄 Cargar Libros de Oracle</button>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ISBN</th>
+                            <th>Título</th>
+                            <th>Género</th>
+                            <th>Formato</th>
+                            <th>Stock Disponible</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-libros">
+                        <tr><td colspan="6" class="text-center">Haga clic en cargar para consultar Oracle.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="prestamos-tab" class="tab-content">
+            <div class="header-section">
+                <h1>Registrar Préstamo de Obra</h1>
+                <p>Las transacciones disminuyen el stock de forma atómica evitando sobre-reservas.</p>
+            </div>
+            <div class="card">
+                <form id="form-prestamo" class="grid-form">
+                    <div class="form-group">
+                        <label>ID Préstamo:</label>
+                        <input type="number" id="p-id" required placeholder="Ej. 901">
+                    </div>
+                    <div class="form-group">
+                        <label>ID Usuario (Lector):</label>
+                        <input type="number" id="p-usuario" required placeholder="Ej. 101">
+                    </div>
+                    <div class="form-group">
+                        <label>ID Libro:</label>
+                        <input type="number" id="p-libro" required placeholder="Ej. 501">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Límite:</label>
+                        <input type="date" id="p-fecha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="grid-column: span 2;">Procesar Salida en Oracle</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="multas-tab" class="tab-content">
+            <div class="header-section">
+                <h1>Módulo Financiero - Control de Multas</h1>
+                <p>Integridad financiera estricta mediante llaves foráneas inmutables.</p>
+            </div>
+            <button class="btn btn-success" onclick="cargarMultas()">💰 Consultar Estado de Cuentas</button>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Multa</th>
+                            <th>ID Préstamo</th>
+                            <th>Monto S/.</th>
+                            <th>Días de Retraso</th>
+                            <th>Estado de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-multas">
+                        <tr><td colspan="5" class="text-center">Haga clic en consultar para leer Oracle.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="comunidad-tab" class="tab-content">
+            <div class="header-section">
+                <h1>Foro de Reseñas Críticas y Valoraciones</h1>
+                <p>Persistencia documental ágil en MongoDB Atlas para lecturas concurrentes masivas.</p>
+            </div>
+            <div class="card">
+                <h2>✍️ Publicar Opinión Crítica</h2>
+                <form id="form-resena" class="grid-form">
+                    <div class="form-group">
+                        <label>ID Libro Relacionado:</label>
+                        <input type="number" id="r-libro" required placeholder="Ej. 501">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Lector / Alias:</label>
+                        <input type="text" id="r-usuario" required placeholder="Ej. Alvaro Escobar">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Calificación:</label>
+                        <select id="r-estrellas">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                            <option value="3">⭐⭐⭐ (3/5)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Comentario Literario:</label>
+                        <textarea id="r-comentario" rows="3" required placeholder="Escriba aquí su reseña..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-mongo" style="grid-column: span 2;">Insertar Documento en MongoDB</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
 </body>
 </html>
