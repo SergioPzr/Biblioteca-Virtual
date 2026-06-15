@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Control Admin</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">URP Biblioteca</div>
+        <div class="subtitle">Módulo de Gestión</div>
+        <hr>
+        <a href="inventario.html" class="nav-link active"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+        <a href="prestamos.html" class="nav-link"><i class="fa-solid fa-book-open-reader"></i> Préstamos</a>
+        <a href="multas.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> Multas</a>
+        <a href="comunidad.html" class="nav-link"><i class="fa-solid fa-comments"></i> Moderación NoSQL</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h1>Inventario General de Obras</h1>
+            <p>Monitoreo transaccional de libros en tiempo real a través de Oracle.</p>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ISBN</th>
+                        <th>Título</th>
+                        <th>Género</th>
+                        <th>Formato</th>
+                        <th>Stock Neto</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-libros">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Sincronizando con Oracle...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="js/inventario.js"></script>
+</body>
+</html>

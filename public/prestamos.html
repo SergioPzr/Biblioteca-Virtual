@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Préstamos - Control Admin</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/prestamos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">URP Biblioteca</div>
+        <div class="subtitle">Módulo de Gestión</div>
+        <hr>
+        <a href="inventario.html" class="nav-link"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+        <a href="prestamos.html" class="nav-link active"><i class="fa-solid fa-book-open-reader"></i> Préstamos</a>
+        <a href="multas.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> Multas</a>
+        <a href="comunidad.html" class="nav-link"><i class="fa-solid fa-comments"></i> Moderación NoSQL</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h1>Salida de Material Bibliográfico</h1>
+            <p>El procesamiento automático descuenta stock mediante transacciones ACID.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            
+            <div class="card">
+                <form id="form-prestamo" class="grid-form">
+                    <div class="form-group">
+                        <label>Código correlativo de préstamo</label>
+                        <input type="number" id="p-id" required placeholder="Ej. 911">
+                    </div>
+                    <div class="form-group">
+                        <label>Código único de lector</label>
+                        <input type="number" id="p-usuario" required placeholder="Ej. 102">
+                    </div>
+                    <div class="form-group">
+                        <label>Código del libro a retirar</label>
+                        <input type="number" id="p-libro" required placeholder="Ej. 501">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha estricta de devolución</label>
+                        <input type="date" id="p-fecha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="grid-column: span 2; margin-top: 12px;">
+                        Confirmar Operación Relacional
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📋 Registro de Préstamos Activos</h2>
+                <table style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>ID Préstamo</th>
+                            <th>ID Usuario</th>
+                            <th>ID Libro</th>
+                            <th>Fecha Emisión</th>
+                            <th>Fecha Límite</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-prestamos">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Sincronizando registros con Oracle...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div> 
+    </div>
+    <script src="js/prestamos.js"></script>
+</body>
+</html>
