@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // =========================================================================
-// CADENAS DE CONEXIÓN
+// CADENAS DE CONEXIÓN (¡AQUÍ SE PUSO TU MONGODB ATLAS!)
 // =========================================================================
 const oracleConfig = {
     user: "admin_biblioteca",
@@ -19,7 +19,8 @@ const oracleConfig = {
     connectString: "localhost:1521/db_biblioteca"
 };
 
-const mongoUrl = 'mongodb://localhost:27017';
+// Recuerda reemplazar <password> por tu contraseña real si cambiaste la que te di (Proyecto123)
+const mongoUrl = 'mongodb+srv://admin_proyecto:Proyecto123@clustermongoescobarcoag.hngvkps.mongodb.net/?appName=ClusterMongoEscobarCoaguila';
 const dbMongoName = 'db_biblioteca_editorial';
 
 // =========================================================================
@@ -113,7 +114,7 @@ app.post('/api/mongo/resenas', async (req, res) => {
         };
 
         const result = await db.collection('resenas').insertOne(nuevaResena);
-        res.status(201).json({ mensaje: '¡Reseña añadida en MongoDB!', id: result.insertedId });
+        res.status(201).json({ mensaje: '¡Reseña añadida en MongoDB Atlas!', id: result.insertedId });
     } catch (err) { res.status(500).json({ error: err.message }); }
     finally { if (client) client.close(); }
 });
@@ -132,6 +133,29 @@ app.get('/api/mongo/resenas/:idLibro', async (req, res) => {
     finally { if (client) client.close(); }
 });
 
+// DELETE: Eliminar una reseña por su ID único (Moderación del Administrador)
+app.delete('/api/mongo/resenas/:id', async (req, res) => {
+    let client;
+    try {
+        const idResena = req.params.id;
+        client = await MongoClient.connect(mongoUrl);
+        const db = client.db(dbMongoName);
+
+        // Usamos ObjectId para buscar el documento único en MongoDB
+        const result = await db.collection('resenas').deleteOne({ _id: new ObjectId(idResena) });
+
+        if (result.deletedCount === 1) {
+            res.json({ mensaje: '¡Reseña eliminada con éxito por el Moderador!' });
+        } else {
+            res.status(404).json({ error: 'No se encontró la reseña especificada.' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Error en MongoDB Atlas: ' + err.message });
+    } finally {
+        if (client) client.close();
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor híbrido corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor híbrido corriendo en http://localhost:${PORT} (Conectado a MongoDB Atlas)`);
 });

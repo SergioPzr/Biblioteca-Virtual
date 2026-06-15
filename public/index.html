@@ -97,34 +97,22 @@
 
         <div id="comunidad-tab" class="tab-content">
             <div class="header-section">
-                <h1>Foro de Reseñas Críticas y Valoraciones</h1>
-                <p>Persistencia documental ágil en MongoDB Atlas para lecturas concurrentes masivas.</p>
+                <h1>🛡️ Panel de Moderación de Reseñas (NoSQL)</h1>
+                <p>Administración, auditoría y eliminación de comentarios inadecuados en la editorial digital.</p>
             </div>
+            
             <div class="card">
-                <h2>✍️ Publicar Opinión Crítica</h2>
-                <form id="form-resena" class="grid-form">
-                    <div class="form-group">
-                        <label>ID Libro Relacionado:</label>
-                        <input type="number" id="r-libro" required placeholder="Ej. 501">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre Lector / Alias:</label>
-                        <input type="text" id="r-usuario" required placeholder="Ej. Alvaro Escobar">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Calificación:</label>
-                        <select id="r-estrellas">
-                            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-                            <option value="4">⭐⭐⭐⭐ (4/5)</option>
-                            <option value="3">⭐⭐⭐ (3/5)</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Comentario Literario:</label>
-                        <textarea id="r-comentario" rows="3" required placeholder="Escriba aquí su reseña..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-mongo" style="grid-column: span 2;">Insertar Documento en MongoDB</button>
-                </form>
+                <h2>🔍 Buscar y Auditar por Obra</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="number" id="buscar-id-libro" placeholder="Ingresa el ID del Libro a auditar (Ej. 501)" style="flex: 1;">
+                    <button class="btn btn-primary" onclick="buscarResenasMongo()">Visualizar y Evaluar Comentarios</button>
+                </div>
+                
+                <div id="contador-resenas" style="font-weight: bold; margin-bottom: 15px; color: #475569;"></div>
+
+                <div id="contenedor-resenas-mongo">
+                    <p class="text-center">Ingrese el ID de un libro para recuperar su feedback histórico desde MongoDB Atlas.</p>
+                </div>
             </div>
         </div>
     </div>
