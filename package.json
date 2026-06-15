@@ -1,0 +1,24 @@
+{
+  "name": "biblioteca-virtual",
+  "version": "1.0.0",
+  "description": "cambiar",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergioPzr/Biblioteca-Virtual.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SergioPzr/Biblioteca-Virtual/issues"
+  },
+  "homepage": "https://github.com/SergioPzr/Biblioteca-Virtual#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
