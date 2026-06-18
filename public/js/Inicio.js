@@ -1,3 +1,37 @@
+// -------------------------------------------------------
+// NAVBAR DINÁMICA POR ROL
+// -------------------------------------------------------
+function inyectarNavRol() {
+    const rol = sessionStorage.getItem('nexuslib_rol');
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    let tercerEnlace = '';
+    if (rol === 'admin') {
+        tercerEnlace = `<a href="/Dashboard.html">Dashboard</a>`;
+    } else if (rol === 'cliente') {
+        tercerEnlace = `<a href="/MisPrestamos.html">Mis préstamos</a>`;
+    }
+
+    navLinks.innerHTML = `
+        <a href="/Inicio.html" class="active">Inicio</a>
+        <a href="/Catalogo.html">Catálogo</a>
+        ${tercerEnlace}
+    `;
+}
+
+function goToLogin() {
+    const rol = sessionStorage.getItem('nexuslib_rol');
+    document.body.classList.add('fade-out');
+    setTimeout(() => {
+        if (rol) {
+            window.location.href = rol === 'admin' ? '/Dashboard.html' : '/MisPrestamos.html';
+        } else {
+            window.location.href = '/Login.html';
+        }
+    }, 400);
+}
+
 // Simulación de los datos del Backend (Se añadieron libros extra para asegurar el funcionamiento del carrusel)
 const mockFeaturedBooks = [
     {
@@ -141,5 +175,6 @@ function initCarousel() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    inyectarNavRol();
     renderFeaturedBooks();
 });

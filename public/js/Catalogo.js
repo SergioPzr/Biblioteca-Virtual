@@ -1,3 +1,43 @@
+// =========================================================
+// Catalogo.js
+// Cambios respecto al original:
+//  1. inyectarNavRol() — navbar dinámica según sessionStorage
+//  2. goToLogin()      — botón de perfil redirige a Login
+//  3. Cards clicables  — navegan a /DetalleLibro.html?id=X
+//  4. Estructura lista para fetch real a /api/oracle/libros
+// =========================================================
+
+// -------------------------------------------------------
+// NAVBAR DINÁMICA POR ROL
+// -------------------------------------------------------
+function inyectarNavRol() {
+    const rol = sessionStorage.getItem('nexuslib_rol');
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    let tercerEnlace = '';
+    if (rol === 'admin') {
+        tercerEnlace = `<a href="/Dashboard.html">Dashboard</a>`;
+    } else if (rol === 'cliente') {
+        tercerEnlace = `<a href="/MisPrestamos.html">Mis préstamos</a>`;
+    }
+
+    navLinks.innerHTML = `
+        <a href="/Inicio.html">Inicio</a>
+        <a href="/Catalogo.html" class="active">Catálogo</a>
+        ${tercerEnlace}
+    `;
+}
+
+function goToLogin() {
+    const rol = sessionStorage.getItem('nexuslib_rol');
+    if (rol) {
+        window.location.href = rol === 'admin' ? '/Dashboard.html' : '/MisPrestamos.html';
+    } else {
+        window.location.href = '/Login.html';
+    }
+}
+
 // Base de datos simulada
 const mockBooks = [
     { id: '1', title: 'Cien años de soledad', author: 'Gabriel García Márquez', year: 1967, stock: 5, format: ['Físico', 'PDF'], rating: 5, reviews: 1284, coverUrl: 'https://m.media-amazon.com/images/I/81MI6+TpYkL._AC_UF1000,1000_QL80_.jpg' },
@@ -130,7 +170,9 @@ function filterBooks() {
             filteredBooks.forEach(book => {
                 const card = document.createElement('article');
                 card.className = 'book-card';
-                
+                // Cursor pointer en toda la card
+                card.style.cursor = 'pointer';
+
                 const stockBadge = book.stock > 0 
                     ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Disponible</span>`
                     : `<span style="position:absolute; top:8px; right:8px; background:#ef4444; color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Agotado</span>`;
@@ -150,6 +192,15 @@ function filterBooks() {
                         <span class="reviews">(${book.year})</span>
                     </div>
                 `;
+
+                // Navegar a la plantilla de detalle con el id del libro
+                card.addEventListener('click', () => {
+                    document.body.classList.add('fade-out');
+                    setTimeout(() => {
+                        window.location.href = `/DetalleLibro.html?id=${book.id}`;
+                    }, 400);
+                });
+
                 booksGrid.appendChild(card);
             });
         }
@@ -189,6 +240,12 @@ resetFiltersBtn.addEventListener('click', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    inyectarNavRol();
+
+    // Vincular botón de perfil de la navbar
+    const profileBtn = document.querySelector('.profile-btn');
+    if (profileBtn) profileBtn.addEventListener('click', goToLogin);
+
     initFilterUI();
     filterBooks();
 });
