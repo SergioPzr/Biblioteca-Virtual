@@ -157,8 +157,8 @@ app.delete('/api/mongo/resenas/:id', async (req, res) => {
 });
 // Redirección por defecto a la página principal del Administrador
 app.get('/', (req, res) => {
-    res.redirect('/inventario.html');
+    res.redirect("/Inicio.html");
 });
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor híbrido corriendo en http://localhost:${PORT} (Conectado a MongoDB Atlas)`);
+    console.log(`Servidor híbrido corriendo en http://localhost:${PORT}`);
 });

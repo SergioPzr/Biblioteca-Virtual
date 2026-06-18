@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo — NexusLib</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/css/Catalogo.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/Inicio.html" class="logo-container">
+            <img src="/images/logo.png" alt="Logo de NexusLib" class="library-logo">
+            <span class="library-name">NexusLib</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/Inicio.html">Inicio</a>
+            <a href="/Catalogo.html" class="active">Catálogo</a>
+            <a href="#">Mis préstamos</a>
+        </nav>
+        <div class="nav-actions">
+            <button class="profile-btn" aria-label="Mi Cuenta">
+                <img src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" alt="Perfil" class="profile-icon">
+            </button>
+        </div>
+    </header>
+
+<main>
+        <section class="catalog-header">
+            <div class="catalog-header-content">
+                <h1 class="font-display">Catálogo completo</h1>
+                <p class="subtitle">Descubre títulos por género, autor o palabra clave.</p>
+
+                <div class="search-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="search-input" placeholder="Buscar por título, autor o ISBN..." class="search-input">
+                    <button id="clear-search" class="clear-btn" aria-label="Borrar búsqueda" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-results">
+            
+            <div class="results-toolbar">
+                <button id="open-filters-btn" class="filter-toggle-btn" aria-label="Abrir filtros">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    Filtros Avanzados
+                </button>
+                <p id="results-count" class="results-count">Cargando libros...</p>
+            </div>
+            
+            <div class="catalog-body">
+                
+                <div id="filter-overlay" class="inner-overlay"></div>
+
+                <aside id="filter-drawer" class="inner-drawer">
+                    <div class="filter-drawer-header">
+                        <h3 class="font-display">Filtros</h3>
+                        <button id="close-filters-btn" class="icon-btn" aria-label="Cerrar filtros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="filter-drawer-body">
+                        
+                        <div class="filter-section">
+                            <label class="filter-label" for="year-slider">
+                                Publicado desde: <span id="year-display" class="filter-value"></span>
+                            </label>
+                            <input type="range" id="year-slider" class="range-slider" min="1900" max="2026" step="1">
+                            <div class="slider-labels">
+                                <span id="year-min-label">Min</span>
+                                <span id="year-max-label">Max</span>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="stock-filter" class="custom-checkbox">
+                                <span class="checkbox-text">Solo libros disponibles</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-section">
+                            <span class="filter-label">Formato</span>
+                            <div id="format-filters" class="format-list">
+                                </div>
+                        </div>
+
+                    </div>
+                    <div class="filter-drawer-footer">
+                        <button id="reset-filters-btn" class="btn btn-outline w-full">Limpiar Todo</button>
+                    </div>
+                </aside>
+
+                <div id="books-grid" class="books-grid">
+                    </div>
+
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <h3 class="font-display">No se encontraron libros</h3>
+                    <p>Modifica los filtros o intenta con otra búsqueda.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="/Inicio.html" class="logo-container-footer">
+                    <img src="/images/logo.png" alt="Logo de NexusLib" class="library-logo-footer">
+                    <span class="library-name-footer">NexusLib</span>
+                </a>
+                <p class="footer-description">
+                    Tu biblioteca digital universitaria. Accede a literatura universal, recursos académicos y gestiona tus préstamos desde cualquier lugar.
+                </p>
+            </div>
+            <div class="footer-links">
+                <h3 class="footer-title">Navegación</h3>
+                <a href="/Inicio.html">Inicio</a>
+                <a href="/Catalogo.html">Catálogo</a>
+                <a href="#">Mis préstamos</a>
+            </div>
+            <div class="footer-links">
+                <h3 class="footer-title">Legal y Ayuda</h3>
+                <a href="#">Preguntas frecuentes</a>
+                <a href="#">Términos de servicio</a>
+                <a href="#">Política de privacidad</a>
+            </div>
+            <div class="footer-contact">
+                <h3 class="footer-title">Contacto</h3>
+                <p>Universidad Ricardo Palma</p>
+                <p>Av. Benavides 5440, Santiago de Surco</p>
+                <p>Lima, Perú</p>
+                <a href="mailto:biblioteca@urp.edu.pe" class="footer-email">biblioteca@urp.edu.pe</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 NexusLib — Sistema de Gestión de Biblioteca y Editorial Digital. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="/js/Catalogo.js"></script>
+    <script src="/js/Transitions.js"></script>
+</body>
+</html>

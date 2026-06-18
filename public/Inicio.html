@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusLib - Tu Biblioteca Digital, Siempre Disponible</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/css/Inicio.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/Inicio.html" class="logo-container">
+            <img src="/images/logo.png" alt="Logo de NexusLib" class="library-logo">
+            <span class="library-name">NexusLib</span>
+        </a>
+        
+        <nav class="nav-links">
+            <a href="/Inicio.html" class="active">Inicio</a>
+            <a href="/Catalogo.html">Catálogo</a>
+            <a href="#">Mis préstamos</a>
+        </nav>
+        
+        <div class="nav-actions">
+            <button class="profile-btn" aria-label="Mi Cuenta">
+                <img src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" alt="Perfil" class="profile-icon">
+            </button>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="hero-bg-overlay"></div>
+            <div class="hero-content">
+                <h1 class="font-display">
+                    Tu Biblioteca Digital,<br>
+                    <span class="italic-serif">Siempre Disponible</span>
+                </h1>
+                <p>Explora un catálogo curado de literatura latinoamericana y universal, descubre reseñas de lectores apasionados y accede a tus libros favoritos en PDF y EPUB desde cualquier dispositivo.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary">
+                        Explorar Catálogo 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                    <button class="btn btn-outline-hero">Saber más</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="collaborators">
+            <h2 class="collaborators-title">Nuestros colaboradores</h2>
+            <div class="collaborators-logos">
+                <img src="images/RicardoPalma.png" alt="Universidad Ricardo Palma" class="partner-logo">
+                <img src="images/PUCP.png" alt="Fondo Editorial PUCP" class="partner-logo">
+                <img src="images/PEISA.png" alt="Editorial PEISA" class="partner-logo">
+                <img src="images/SanMarcos.png" alt="Editorial San Marcos" class="partner-logo">
+                <img src="images/Planeta.png" alt="Planeta Perú" class="partner-logo">
+            </div>
+        </section>
+
+        <!-- Sección de Libros Destacados -->
+        <section class="featured" id="destacados">
+            <div class="section-header">
+                <div>
+                    <span class="section-subtitle">DESTACADOS</span>
+                    <h2 class="section-title font-display">Lecturas que no puedes perderte</h2>
+                </div>
+                <a href="#" class="view-all">
+                    Ver todo 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+            </div>
+            
+            <!-- Contenedor del Carrusel -->
+            <div class="carousel-wrapper">
+                <!-- Botón Izquierdo -->
+                <button class="carousel-btn prev" id="prev-btn" aria-label="Anterior">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                
+                <!-- Contenedor dinámico de libros -->
+                <div id="books-container" class="carousel-container">
+                    <!-- Inyectado por JS -->
+                </div>
+
+                <!-- Botón Derecho -->
+                <button class="carousel-btn next" id="next-btn" aria-label="Siguiente">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="#" class="logo-container-footer">
+                    <img src="./images/logo.png" alt="Logo de NexusLib" class="library-logo-footer">
+                    <span class="library-name-footer">NexusLib</span>
+                </a>
+                <p class="footer-description">
+                    Tu biblioteca digital universitaria. Accede a literatura universal, recursos académicos y gestiona tus préstamos desde cualquier lugar.
+                </p>
+            </div>
+            
+            <div class="footer-links">
+                <h3 class="footer-title">Navegación</h3>
+                <a href="#">Inicio</a>
+                <a href="#">Catálogo</a>
+                <a href="#">Mis préstamos</a>
+            </div>
+
+            <div class="footer-links">
+                <h3 class="footer-title">Legal y Ayuda</h3>
+                <a href="#">Preguntas frecuentes</a>
+                <a href="#">Términos de servicio</a>
+                <a href="#">Política de privacidad</a>
+            </div>
+
+            <div class="footer-contact">
+                <h3 class="footer-title">Contacto</h3>
+                <p>Universidad Ricardo Palma</p>
+                <p>Av. Benavides 5440, Santiago de Surco</p>
+                <p>Lima, Perú</p>
+                <a href="mailto:biblioteca@urp.edu.pe" class="footer-email">biblioteca@urp.edu.pe</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 NexusLib — Sistema de Gestión de Biblioteca y Editorial Digital. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    <script src="/js/Inicio.js"></script>
+    <script src="/js/Transitions.js"></script>
+</body>
+</html>
