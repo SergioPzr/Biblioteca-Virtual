@@ -84,7 +84,7 @@ async function obtenerLibrosDeOracle() {
             format: l.FORMATO,
             stock: l.STOCK_DISPONIBLE,
             year: l.ANIO_PUBLICACION,
-            coverUrl: '' 
+            coverUrl: l.URL_IMAGEN || '' // Usar la URL guardada en Oracle si existe
         }));
 
         initFilterUI();
@@ -187,18 +187,25 @@ function filterBooks() {
                 const card = document.createElement('article');
                 card.className = 'book-card';
                 card.style.cursor = 'pointer';
-                //Reemplázala por esta versión con Cache Busting
-                const linkImagen = portadasDeRespaldo[index % portadasDeRespaldo.length];
+
+                // Usar URL de Oracle si existe, sino usar imagen de respaldo por índice
+                const linkImagen = (book.coverUrl && book.coverUrl.trim() !== '')
+                    ? book.coverUrl
+                    : portadasDeRespaldo[index % portadasDeRespaldo.length];
 
                 const stockBadge = book.stock > 0
                     ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Disponible (${book.stock})</span>`
                     : `<span style="position:absolute; top:8px; right:8px; background:#ef4444; color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Agotado</span>`;
 
-                // Reemplazamos el div vacío por una etiqueta img con estilos responsivos estructurados
                 card.innerHTML = `
                     <div class="book-cover-wrapper" style="position:relative; width:100%; height:250px; overflow:hidden; border-radius:8px;">
                         ${stockBadge}
-                        <img src="${linkImagen}" alt="Portada de ${book.title}" style="width:100%; height:100%; object-fit:cover;">
+                        <img 
+                            src="${linkImagen}" 
+                            alt="Portada de ${book.title}" 
+                            style="width:100%; height:100%; object-fit:cover;"
+                            onerror="this.onerror=null; this.src='${portadasDeRespaldo[index % portadasDeRespaldo.length]}';"
+                        >
                     </div>
                     <h3 class="book-title font-display" style="margin-top:12px; font-size:1.1rem; color:var(--neutral-dark);">${book.title}</h3>
                     <p class="book-author" style="font-size:0.85rem; color:var(--neutral-mid);">${book.author}</p>

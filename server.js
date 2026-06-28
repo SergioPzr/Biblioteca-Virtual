@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 const express = require('express');
 const path = require('path');
 const oracledb = require('oracledb');
@@ -249,6 +251,133 @@ app.delete('/api/mongo/resenas/:id', async (req, res) => {
         }
     } catch (err) { res.status(500).json({ error: err.message }); }
     finally { if (client) client.close(); }
+});
+
+// =========================================================================
+// ENDPOINTS DE USUARIOS (ORACLE SQL — JOIN con MEMBRESIA)
+// =========================================================================
+
+// GET: Listar todos los usuarios con su membresía activa (LEFT JOIN)
+app.get('/api/oracle/usuarios', async (req, res) => {
+    let conn;
+    try {
+        conn = await oracledb.getConnection(oracleConfig);
+        const result = await conn.execute(
+            `SELECT 
+                u.idUsuario       AS IDUSUARIO,
+                u.nombre          AS NOMBRE,
+                u.apellido        AS APELLIDO,
+                u.email           AS EMAIL,
+                u.rol             AS ROL,
+                u.estado_cuenta   AS ESTADO_CUENTA,
+                m.tipo_plan       AS TIPO_PLAN,
+                m.estado          AS ESTADO_MEMBRESIA
+             FROM USUARIO u
+             LEFT JOIN MEMBRESIA m ON u.idUsuario = m.idUsuario
+             ORDER BY u.idUsuario ASC`,
+            [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error("Error GET /api/oracle/usuarios:", err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) try { await conn.close(); } catch(e) {}
+    }
+});
+
+// PUT: Actualizar membresía de un usuario (UPDATE en tabla MEMBRESIA)
+app.put('/api/oracle/usuarios/:id/membresia', async (req, res) => {
+    let conn;
+    try {
+        const idUsuario = parseInt(req.params.id);
+        const { membresia } = req.body;
+
+        const membresiasValidas = ['Mega Fan', 'Premium', 'Estudiante', 'Básico'];
+        if (!membresiasValidas.includes(membresia)) {
+            return res.status(400).json({ error: 'Membresía no válida.' });
+        }
+
+        conn = await oracledb.getConnection(oracleConfig);
+
+        // Verificar si ya tiene una fila en MEMBRESIA
+        const check = await conn.execute(
+            `SELECT idMembresia FROM MEMBRESIA WHERE idUsuario = :idUsuario`,
+            { idUsuario },
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+
+        if (check.rows.length > 0) {
+            // UPDATE si ya existe
+            await conn.execute(
+                `UPDATE MEMBRESIA SET tipo_plan = :membresia WHERE idUsuario = :idUsuario`,
+                { membresia, idUsuario }
+            );
+        } else {
+            // INSERT si el usuario no tiene membresía aún
+            await conn.execute(
+                `INSERT INTO MEMBRESIA (idUsuario, tipo_plan, fecha_inicio, fecha_vencimiento, estado)
+                 VALUES (:idUsuario, :membresia, SYSDATE, ADD_MONTHS(SYSDATE, 12), 'activo')`,
+                { idUsuario, membresia }
+            );
+        }
+
+        await conn.commit();
+        res.json({ mensaje: `Membresía actualizada a '${membresia}' correctamente.` });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error("Error al actualizar membresía Oracle:", err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) {
+            try { await conn.close(); } catch (e) { console.error(e); }
+        }
+    }
+});
+
+// =========================================================================
+// ENDPOINT DE ACTUALIZACIÓN DE LIBRO (ORACLE SQL)
+// =========================================================================
+
+// PUT: Actualizar todos los campos de un libro
+app.put('/api/oracle/libros/:id', async (req, res) => {
+    let conn;
+    try {
+        const idLibro = parseInt(req.params.id);
+        const { isbn, titulo, autor, genero, formato, stock_total, stock_disponible, anio_publicacion, sinopsis, url_imagen } = req.body;
+
+        conn = await oracledb.getConnection(oracleConfig);
+        await conn.execute(
+            `UPDATE LIBRO SET
+                isbn = :isbn,
+                titulo = :titulo,
+                autor = :autor,
+                genero = :genero,
+                formato = :formato,
+                stock_total = :stock_total,
+                stock_disponible = :stock_disponible,
+                anio_publicacion = :anio_publicacion,
+                sinopsis = :sinopsis,
+                url_imagen = :url_imagen
+             WHERE idLibro = :idLibro`,
+            {
+                isbn, titulo, autor, genero, formato,
+                stock_total: parseInt(stock_total),
+                stock_disponible: parseInt(stock_disponible),
+                anio_publicacion: parseInt(anio_publicacion),
+                sinopsis,
+                url_imagen: url_imagen || null,
+                idLibro
+            }
+        );
+        await conn.commit();
+        res.json({ mensaje: 'Obra actualizada correctamente en Oracle.' });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) await conn.close();
+    }
 });
 
 app.get('/', (req, res) => {

@@ -94,32 +94,23 @@ function poblarInterfaz(libro) {
     document.getElementById('libro-stock').textContent  = `${libro.STOCK_DISPONIBLE} / ${libro.STOCK_TOTAL}`;
     document.getElementById('libro-sinopsis').textContent = libro.SINOPSIS || "Sinopsis no estructurada para esta obra.";
 
-    // 🖼️ ASIGNACIÓN DINÁMICA DE LA PORTADA REACCIÓN EN DETALLE (MATCH CON CATÁLOGO)
-   let libroImg = document.querySelector('img[alt="Portada del libro"]');
-    
-    // Si por si acaso no lo encuentra, usamos los selectores de respaldo anteriores
-    if (!libroImg) {
-        libroImg = document.querySelector('.detail-cover-wrapper img, .book-detail-cover img, img.libro-img-detalle, .detail-left img');
-    }
+    // 🖼️ PORTADA: Usar URL de Oracle si existe, sino imagen de respaldo por ID
+    const coverImg = document.getElementById('libro-portada');
+    const coverPlaceholder = document.getElementById('libro-portada-placeholder');
+    const linkImagen = (libro.URL_IMAGEN && libro.URL_IMAGEN.trim() !== '')
+        ? libro.URL_IMAGEN
+        : portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
 
-    const linkImagen = portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
-
-    if (libroImg) {
-        // Inyectamos el link estable de Unsplash que sí te funcionó en el catálogo
-        libroImg.src = linkImagen;
-        libroImg.alt = `Portada de ${libro.TITULO}`;
-        libroImg.style.width = "100%";
-        libroImg.style.height = "100%";
-        libroImg.style.objectFit = "cover";
-        libroImg.style.borderRadius = "12px"; // Para que mantenga los bordes boleados estéticos
-    } else {
-        // Último recurso: si el HTML no tiene un img, buscamos un contenedor genérico
-        const contenedorPortada = document.querySelector('.detail-left, .book-sidebar, .catalog-detail');
-        if (contenedorPortada) {
-            contenedorPortada.innerHTML = `<img src="${linkImagen}" alt="Portada de ${libro.TITULO}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">`;
-        } else {
-            console.warn("No se detectó la etiqueta de imagen en el HTML.");
-        }
+    if (coverImg) {
+        coverImg.src = linkImagen;
+        coverImg.alt = `Portada de ${libro.TITULO}`;
+        coverImg.style.display = 'block';
+        if (coverPlaceholder) coverPlaceholder.style.display = 'none';
+        // Si la URL falla, cae al respaldo por ID
+        coverImg.onerror = function() {
+            this.onerror = null;
+            this.src = portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
+        };
     }
 
     // Renderizar marcador visual de stock
@@ -178,20 +169,21 @@ function renderResenas(resenas) {
     resenas.forEach(r => {
         const inicial = r.nombre_usuario.charAt(0).toUpperCase();
         const fecha = new Date(r.fecha_publicacion).toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
+        const estrellas = '★'.repeat(r.puntuacion_estrellas) + '☆'.repeat(5 - r.puntuacion_estrellas);
         
         lista.innerHTML += `
-            <div class="resena-card" style="border-bottom:1px solid #f1f5f9; padding:16px 0;">
-                <div class="resena-top" style="display:flex; justify-content:between; align-items:center;">
-                    <div class="resena-meta" style="display:flex; gap:12px; align-items:center;">
-                        <div class="resena-avatar" style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${inicial}</div>
-                        <div class="resena-info" style="display:flex; flex-direction:column;">
-                            <span class="resena-nombre" style="font-weight:600; color:var(--neutral-dark);">${r.nombre_usuario}</span>
-                            <span class="resena-fecha" style="font-size:0.75rem; color:var(--neutral-mid);">${fecha}</span>
+            <div class="resena-card">
+                <div class="resena-top">
+                    <div class="resena-meta">
+                        <div class="resena-avatar">${inicial}</div>
+                        <div class="resena-info">
+                            <span class="resena-nombre">${r.nombre_usuario}</span>
+                            <span class="resena-fecha">${fecha}</span>
                         </div>
                     </div>
-                    <span class="resena-estrellas" style="color:#eab308; margin-left:auto;">${'★'.repeat(r.puntuacion_estrellas)}</span>
+                    <span class="resena-estrellas">${estrellas}</span>
                 </div>
-                <p class="resena-comentario" style="margin-top:10px; font-size:0.92rem; color:var(--neutral-mid); line-height:1.5;">${r.comentario}</p>
+                <p class="resena-comentario">${r.comentario}</p>
             </div>
         `;
     });
