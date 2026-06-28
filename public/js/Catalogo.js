@@ -1,15 +1,23 @@
-// =========================================================
-// Catalogo.js
-// Cambios respecto al original:
-//  1. inyectarNavRol() — navbar dinámica según sessionStorage
-//  2. goToLogin()      — botón de perfil redirige a Login
-//  3. Cards clicables  — navegan a /DetalleLibro.html?id=X
-//  4. Estructura lista para fetch real a /api/oracle/libros
-// =========================================================
+const portadasDeRespaldo = [
+    "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop", // 0
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop", // 1
+    "https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=400&auto=format&fit=crop", // 2
+    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&auto=format&fit=crop", // 3
+    "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=400&auto=format&fit=crop", // 4
+    "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&auto=format&fit=crop", // 5
+    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&auto=format&fit=crop", // 6
+    "https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400&auto=format&fit=crop", // 7
+    "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&auto=format&fit=crop", // 8
+    "https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a?w=400&auto=format&fit=crop", // 9
+    "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&auto=format&fit=crop", // 10
+    "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&auto=format&fit=crop", // 11. CAMBIADO Y VERIFICADO (Libros médicos)
+    "https://images.unsplash.com/photo-1614849963640-9cc74b2a826f?w=400&auto=format&fit=crop", // 12
+    "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&auto=format&fit=crop", // 13
+    "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&auto=format&fit=crop", // 14. CAMBIADO Y VERIFICADO (Biblioteca clásica)
+    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&auto=format&fit=crop", // 15. CAMBIADO Y VERIFICADO (Libro jurídico/formal)
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop", // 18
+];
 
-// -------------------------------------------------------
-// NAVBAR DINÁMICA POR ROL
-// -------------------------------------------------------
 function inyectarNavRol() {
     const rol = sessionStorage.getItem('nexuslib_rol');
     const navLinks = document.querySelector('.nav-links');
@@ -30,52 +38,29 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    // 1. Limpiamos toda la sesión
     sessionStorage.clear();
-    
-    // 2. Activamos la animación de salida (el telón blanco)
     document.body.classList.add('fade-out');
-    
-    // 3. Redirigimos siempre al login
-    setTimeout(() => {
-        window.location.href = '/Login.html';
-    }, 400);
+    setTimeout(() => { window.location.href = '/Login.html'; }, 400);
 }
-// Base de datos simulada
-const mockBooks = [
-    { id: '1', title: 'Cien años de soledad', author: 'Gabriel García Márquez', year: 1967, stock: 5, format: ['Físico', 'PDF'], rating: 5, reviews: 1284, coverUrl: 'https://m.media-amazon.com/images/I/81MI6+TpYkL._AC_UF1000,1000_QL80_.jpg' },
-    { id: '2', title: 'La casa de los espíritus', author: 'Isabel Allende', year: 1982, stock: 0, format: ['PDF', 'EPUB'], rating: 5, reviews: 932, coverUrl: 'https://m.media-amazon.com/images/I/91tUo+rK3WL._AC_UF1000,1000_QL80_.jpg' },
-    { id: '3', title: 'La ciudad y los perros', author: 'Mario Vargas Llosa', year: 1963, stock: 2, format: ['Físico'], rating: 4, reviews: 612, coverUrl: '' },
-    { id: '4', title: 'Ficciones', author: 'Jorge Luis Borges', year: 1944, stock: 10, format: ['Físico', 'PDF', 'EPUB'], rating: 5, reviews: 1502, coverUrl: 'https://m.media-amazon.com/images/I/71R2Qo2U4FL._AC_UF1000,1000_QL80_.jpg' },
-    { id: '5', title: 'Rayuela', author: 'Julio Cortázar', year: 1963, stock: 0, format: ['EPUB'], rating: 5, reviews: 775, coverUrl: 'https://m.media-amazon.com/images/I/61r-Gtd2LML._AC_UF1000,1000_QL80_.jpg' },
-    { id: '6', title: 'Pedro Páramo', author: 'Juan Rulfo', year: 1955, stock: 4, format: ['Físico', 'PDF'], rating: 5, reviews: 845, coverUrl: 'https://m.media-amazon.com/images/I/71Xm+1M7DNL._AC_UF1000,1000_QL80_.jpg' },
-    { id: '7', title: 'El Aleph', author: 'Jorge Luis Borges', year: 1949, stock: 1, format: ['Físico'], rating: 5, reviews: 1102, coverUrl: 'https://m.media-amazon.com/images/I/71X1E8S5LwL._AC_UF1000,1000_QL80_.jpg' },
-    { id: '8', title: 'Como agua para chocolate', author: 'Laura Esquivel', year: 1989, stock: 8, format: ['Físico', 'EPUB'], rating: 4, reviews: 540, coverUrl: 'https://m.media-amazon.com/images/I/81h2QyPyl+L._AC_UF1000,1000_QL80_.jpg' }
-];
 
-const allYears = mockBooks.map(b => b.year);
-const minYear = Math.min(...allYears);
-const maxYear = Math.max(...allYears);
-const allFormats = [...new Set(mockBooks.flatMap(b => b.format))];
-
+// Variables de estado dinámicas
+let librosBaseDeDatos = [];
 let currentQuery = "";
-let currentMinYear = minYear;
+let currentMinYear = 1900;
 let filterInStock = false;
 let selectedFormats = [];
-let filterTimeout; 
+let filterTimeout;
 
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search');
 const booksGrid = document.getElementById('books-grid');
 const emptyState = document.getElementById('empty-state');
 const resultsCount = document.getElementById('results-count');
-
 const catalogBody = document.querySelector('.catalog-body');
 const filterDrawer = document.getElementById('filter-drawer');
 const openFiltersBtn = document.getElementById('open-filters-btn');
 const closeFiltersBtn = document.getElementById('close-filters-btn');
 const resetFiltersBtn = document.getElementById('reset-filters-btn');
-
 const yearSlider = document.getElementById('year-slider');
 const yearDisplay = document.getElementById('year-display');
 const yearMinLabel = document.getElementById('year-min-label');
@@ -83,7 +68,39 @@ const yearMaxLabel = document.getElementById('year-max-label');
 const stockFilter = document.getElementById('stock-filter');
 const formatFiltersContainer = document.getElementById('format-filters');
 
+// TRAER DATOS REALES DE ORACLE
+async function obtenerLibrosDeOracle() {
+    try {
+        const res = await fetch('/api/oracle/libros');
+        const data = await res.json();
+        
+        // Mapear el formato JSON de Oracle a minúsculas para mantener consistencia con el frontend
+        librosBaseDeDatos = data.map(l => ({
+            id: l.IDLIBRO,
+            isbn: l.ISBN,
+            title: l.TITULO,
+            author: l.AUTOR,
+            genre: l.GENERO,
+            format: l.FORMATO,
+            stock: l.STOCK_DISPONIBLE,
+            year: l.ANIO_PUBLICACION,
+            coverUrl: '' 
+        }));
+
+        initFilterUI();
+        filterBooks();
+    } catch (err) {
+        resultsCount.textContent = "Error al conectar con el servidor.";
+    }
+}
+
 function initFilterUI() {
+    if (librosBaseDeDatos.length === 0) return;
+    const years = librosBaseDeDatos.map(b => b.year);
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+    const formats = [...new Set(librosBaseDeDatos.map(b => b.format))];
+
     yearSlider.min = minYear;
     yearSlider.max = maxYear;
     yearSlider.value = minYear;
@@ -91,12 +108,13 @@ function initFilterUI() {
     yearMinLabel.textContent = minYear;
     yearMaxLabel.textContent = maxYear;
 
-    allFormats.forEach(format => {
+    formatFiltersContainer.innerHTML = '';
+    formats.forEach(format => {
         const label = document.createElement('label');
         label.className = 'checkbox-wrapper';
         label.innerHTML = `
             <input type="checkbox" class="custom-checkbox format-checkbox" value="${format}">
-            <span class="checkbox-text">${format}</span>
+            <span class="checkbox-text">${format.toUpperCase()}</span>
         `;
         formatFiltersContainer.appendChild(label);
     });
@@ -112,53 +130,47 @@ function initFilterUI() {
         filterBooks();
     });
 
-    document.querySelectorAll('.format-checkbox').forEach(cb => {
-        cb.addEventListener('change', () => {
-            selectedFormats = Array.from(document.querySelectorAll('.format-checkbox:checked')).map(box => box.value);
-            filterBooks();
-        });
+    formatFiltersContainer.addEventListener('change', () => {
+        selectedFormats = Array.from(formatFiltersContainer.querySelectorAll('.format-checkbox:checked')).map(box => box.value);
+        filterBooks();
     });
 }
 
 function toggleDrawer(forceClose = false) {
     if (forceClose || filterDrawer.classList.contains('open')) {
         filterDrawer.classList.remove('open');
-        catalogBody.classList.remove('drawer-open'); 
+        catalogBody.classList.remove('drawer-open');
     } else {
         filterDrawer.classList.add('open');
-        catalogBody.classList.add('drawer-open'); 
+        catalogBody.classList.add('drawer-open');
     }
 }
 
 openFiltersBtn.addEventListener('click', () => toggleDrawer());
 closeFiltersBtn.addEventListener('click', () => toggleDrawer(true));
 
-function generateStars(rating) {
+function generateStars() {
     let starsHtml = '';
-    const starFilled = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-    const starEmpty = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
-    for (let i = 0; i < 5; i++) starsHtml += i < rating ? starFilled : starEmpty;
+    const starFilled = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    for (let i = 0; i < 5; i++) starsHtml += starFilled;
     return starsHtml;
 }
 
+// 🎨 LOGICA REACCIÓN FILTRADA CON VÍNCULO DE IMÁGENES DE RESPALDO
 function filterBooks() {
     const q = currentQuery.trim().toLowerCase();
-    const filteredBooks = mockBooks.filter(b => {
+    const filteredBooks = librosBaseDeDatos.filter(b => {
         const matchesQuery = !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
         const matchesYear = b.year >= currentMinYear;
         const matchesStock = !filterInStock || b.stock > 0;
-        const matchesFormat = selectedFormats.length === 0 || b.format.some(f => selectedFormats.includes(f));
+        const matchesFormat = selectedFormats.length === 0 || selectedFormats.includes(b.format);
         return matchesQuery && matchesYear && matchesStock && matchesFormat;
     });
 
-    // 1. Inicia Fade Out inmediatamente
     booksGrid.style.opacity = '0';
     booksGrid.style.transform = 'translateY(6px)';
-    
-    // Limpia colisiones si el usuario desliza muy rápido
     clearTimeout(filterTimeout);
-    
-    // 2. Transición Ultra Rápida (150ms)
+
     filterTimeout = setTimeout(() => {
         resultsCount.textContent = `${filteredBooks.length} libro${filteredBooks.length !== 1 ? 's' : ''} encontrado${filteredBooks.length !== 1 ? 's' : ''}`;
 
@@ -169,53 +181,44 @@ function filterBooks() {
             booksGrid.style.display = 'grid';
             emptyState.style.display = 'none';
             booksGrid.innerHTML = '';
-            
-            filteredBooks.forEach(book => {
+
+            // Se añadió 'index' en el forEach para mapear de manera cíclica las portadas
+            filteredBooks.forEach((book, index) => {
                 const card = document.createElement('article');
                 card.className = 'book-card';
-                // Cursor pointer en toda la card
                 card.style.cursor = 'pointer';
+                //Reemplázala por esta versión con Cache Busting
+                const linkImagen = portadasDeRespaldo[index % portadasDeRespaldo.length];
 
-                const stockBadge = book.stock > 0 
-                    ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Disponible</span>`
+                const stockBadge = book.stock > 0
+                    ? `<span style="position:absolute; top:8px; right:8px; background:var(--primary); color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Disponible (${book.stock})</span>`
                     : `<span style="position:absolute; top:8px; right:8px; background:#ef4444; color:white; font-size:0.65rem; padding:4px 10px; border-radius:12px; font-weight:bold; z-index:5;">Agotado</span>`;
 
+                // Reemplazamos el div vacío por una etiqueta img con estilos responsivos estructurados
                 card.innerHTML = `
-                    <div class="book-cover-wrapper">
+                    <div class="book-cover-wrapper" style="position:relative; width:100%; height:250px; overflow:hidden; border-radius:8px;">
                         ${stockBadge}
-                        ${book.coverUrl 
-                            ? `<img src="${book.coverUrl}" alt="Portada" class="book-cover">` 
-                            : `<div class="empty-cover">Sin Portada</div>`
-                        }
+                        <img src="${linkImagen}" alt="Portada de ${book.title}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
-                    <h3 class="book-title font-display">${book.title}</h3>
-                    <p class="book-author">${book.author}</p>
-                    <div class="book-meta">
-                        <div class="stars-container">${generateStars(book.rating)}</div>
+                    <h3 class="book-title font-display" style="margin-top:12px; font-size:1.1rem; color:var(--neutral-dark);">${book.title}</h3>
+                    <p class="book-author" style="font-size:0.85rem; color:var(--neutral-mid);">${book.author}</p>
+                    <div class="book-meta" style="margin-top:auto; padding-top:8px;">
+                        <div class="stars-container">${generateStars()}</div>
                         <span class="reviews">(${book.year})</span>
                     </div>
                 `;
 
-                // Navegar a la plantilla de detalle con el id del libro
                 card.addEventListener('click', () => {
                     document.body.classList.add('fade-out');
-                    setTimeout(() => {
-                        window.location.href = `/DetalleLibro.html?id=${book.id}`;
-                    }, 400);
+                    setTimeout(() => { window.location.href = `/DetalleLibro.html?id=${book.id}`; }, 250);
                 });
 
                 booksGrid.appendChild(card);
             });
         }
-        
-        // 3. Forzar repintado para el navegador
-        void booksGrid.offsetWidth;
-        
-        // 4. Inicia Fade In
         booksGrid.style.opacity = '1';
         booksGrid.style.transform = 'translateY(0)';
-        
-    }, 150); // Tiempo óptimo para evitar cuelgues
+    }, 150);
 }
 
 searchInput.addEventListener('input', (e) => {
@@ -232,6 +235,9 @@ clearSearchBtn.addEventListener('click', () => {
 });
 
 resetFiltersBtn.addEventListener('click', () => {
+    if (librosBaseDeDatos.length === 0) return;
+    const years = librosBaseDeDatos.map(b => b.year);
+    const minYear = Math.min(...years);
     yearSlider.value = minYear;
     currentMinYear = minYear;
     yearDisplay.textContent = minYear;
@@ -244,11 +250,7 @@ resetFiltersBtn.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     inyectarNavRol();
-
-    // Vincular botón de perfil de la navbar
     const profileBtn = document.querySelector('.profile-btn');
     if (profileBtn) profileBtn.addEventListener('click', goToLogin);
-
-    initFilterUI();
-    filterBooks();
+    obtenerLibrosDeOracle();
 });

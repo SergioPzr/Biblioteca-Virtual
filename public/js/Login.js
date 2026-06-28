@@ -1,20 +1,5 @@
-// =========================================================
-// Login.js — Lógica de autenticación simulada
-// 
-// NOTA PARA INTEGRACIÓN FUTURA (Oracle):
-// La función handleLogin() debe reemplazar el bloque 
-// "SIMULACIÓN" por un fetch real a:
-//   POST /api/oracle/auth/login
-//   body: { email, password, rol }
-// El servidor verificará contra la tabla USUARIO y 
-// devolverá { ok: true, rol: 'cliente'|'admin', nombre }
-// =========================================================
-
 let selectedRole = 'cliente'; // Rol activo por defecto
 
-/**
- * Cambia entre los paneles "Iniciar sesión" y "Registrarse"
- */
 function switchTab(tab) {
     const tabLogin    = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
@@ -34,65 +19,67 @@ function switchTab(tab) {
     }
 }
 
-/**
- * Actualiza el rol seleccionado visualmente y lo guarda en la variable
- */
 function selectRole(role) {
     selectedRole = role;
-
     document.getElementById('role-cliente').classList.toggle('active', role === 'cliente');
     document.getElementById('role-admin').classList.toggle('active', role === 'admin');
 }
 
-/**
- * Maneja el submit del formulario de login.
- * 
- * === SIMULACIÓN ACTUAL ===
- * Guarda el rol en sessionStorage y redirige según el rol.
- * No valida credenciales.
- *
- * === INTEGRACIÓN FUTURA ===
- * Reemplazar el bloque de simulación por:
- *
- *   const res = await fetch('/api/oracle/auth/login', {
- *       method: 'POST',
- *       headers: { 'Content-Type': 'application/json' },
- *       body: JSON.stringify({ email, password, rol: selectedRole })
- *   });
- *   const data = await res.json();
- *   if (!res.ok) { mostrarError(data.error); return; }
- *   sessionStorage.setItem('nexuslib_rol', data.rol);
- *   sessionStorage.setItem('nexuslib_usuario', data.nombre);
- *   window.location.href = data.rol === 'admin' ? '/Dashboard.html' : '/Inicio.html';
- */
-function handleLogin() {
+// CONEXIÓN ASÍNCRONA REAL A MONGODB ATLAS
+async function handleLogin() {
     const email = document.getElementById('login-email').value.trim();
     const pass = document.getElementById('login-pass').value.trim();
 
-    // Validación obligatoria para que el botón tenga función real
     if (!email || !pass) {
         alert("Por favor, ingresa tu correo y contraseña para continuar.");
         return;
     }
 
-    // === SIMULACIÓN ACTUAL ===
-    sessionStorage.setItem('nexuslib_rol', selectedRole);
-    sessionStorage.setItem('nexuslib_usuario', selectedRole === 'admin' ? 'Administrador' : 'Lector');
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: pass })
+        });
+        const data = await res.json();
 
-    // Animación de salida antes de redirigir
-    document.body.classList.add('fade-out');
-
-    setTimeout(() => {
-        if (selectedRole === 'admin') {
-            window.location.href = '/Dashboard.html';
-        } else {
-            window.location.href = '/Inicio.html';
+        if (!res.ok) {
+            alert("❌ Error de acceso: " + data.error);
+            return;
         }
-    }, 400);
+
+        // Verificación estricta: Limpiamos y comparamos en minúsculas
+        const rolServidor = data.rol.toLowerCase().trim();
+        const rolSeleccionado = selectedRole.toLowerCase().trim();
+
+        if (rolServidor !== rolSeleccionado) {
+            alert(`⚠️ Privilegios insuficientes. Tu cuenta no cuenta con rol de: ${selectedRole.toUpperCase()}`);
+            return;
+        }
+
+        // Almacenar las credenciales validadas de Atlas en la sesión activa
+        sessionStorage.setItem('nexuslib_rol', rolServidor);
+        sessionStorage.setItem('nexuslib_usuario', data.nombre);
+        sessionStorage.setItem('nexuslib_email', email);
+
+        // Ejecutar animación de salida (Transitions.js)
+        document.body.classList.add('fade-out');
+
+        setTimeout(() => {
+            if (rolServidor === 'admin') {
+                window.location.href = '/Dashboard.html'; // Te manda al panel de control de administración
+            } else {
+                window.location.href = '/Inicio.html'; // Te manda a la vitrina del cliente
+            }
+        }, 400);
+
+    } catch (err) {
+        alert("Error de red al conectar con MongoDB Atlas: " + err.message);
+    }
 }
 
 // =========================================================
-// Al cargar la página: si ya hay sesión, redirigir directo
+// Al cargar el Login: si ya está autenticado, lo derivamos a donde pertenece
 // =========================================================
 document.addEventListener('DOMContentLoaded', () => {
     const rolActivo = sessionStorage.getItem('nexuslib_rol');

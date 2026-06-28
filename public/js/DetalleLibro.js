@@ -1,144 +1,26 @@
-// =========================================================
-// DetalleLibro.js
-//
-// ESTRUCTURA DE DATOS ESPERADA (para integración futura):
-//
-// Oracle — GET /api/oracle/libros/:id devuelve:
-//   { IDLIBRO, ISBN, TITULO, GENERO, FORMATO,
-//     STOCK_TOTAL, STOCK_DISPONIBLE, ANIO_PUBLICACION }
-//
-// MongoDB fichas — GET /api/mongo/fichas/:idLibro devuelve:
-//   { idLibro, autor, editorial, sinopsis, url_imagen,
-//     tags: ['tag1','tag2'], coautores: [] }
-//
-// MongoDB reseñas — GET /api/mongo/resenas/:idLibro devuelve:
-//   [{ _id, nombre_usuario, puntuacion_estrellas,
-//      comentario, fecha_publicacion }]
-//
-// MongoDB reseñas — POST /api/mongo/resenas devuelve:
-//   { mensaje, id }
-// =========================================================
-
-// -------------------------------------------------------
-// DATOS SIMULADOS (reemplazar por fetch real)
-// -------------------------------------------------------
-const MOCK_LIBROS = {
-    '1': {
-        IDLIBRO: 1, ISBN: '9780307474728', TITULO: 'Cien años de soledad',
-        GENERO: 'Novela', FORMATO: 'PDF · EPUB',
-        STOCK_TOTAL: 5, STOCK_DISPONIBLE: 3, ANIO_PUBLICACION: 1967
-    },
-    '2': {
-        IDLIBRO: 2, ISBN: '9788401242182', TITULO: 'La casa de los espíritus',
-        GENERO: 'Novela', FORMATO: 'PDF · EPUB',
-        STOCK_TOTAL: 4, STOCK_DISPONIBLE: 0, ANIO_PUBLICACION: 1982
-    },
-    '3': {
-        IDLIBRO: 3, ISBN: '9788420633213', TITULO: 'La ciudad y los perros',
-        GENERO: 'Novela', FORMATO: 'Físico',
-        STOCK_TOTAL: 6, STOCK_DISPONIBLE: 2, ANIO_PUBLICACION: 1963
-    },
-    '4': {
-        IDLIBRO: 4, ISBN: '9788420642697', TITULO: 'Ficciones',
-        GENERO: 'Cuentos', FORMATO: 'Físico · PDF · EPUB',
-        STOCK_TOTAL: 10, STOCK_DISPONIBLE: 10, ANIO_PUBLICACION: 1944
-    },
-    '5': {
-        IDLIBRO: 5, ISBN: '9788437604572', TITULO: 'Rayuela',
-        GENERO: 'Novela experimental', FORMATO: 'EPUB',
-        STOCK_TOTAL: 3, STOCK_DISPONIBLE: 0, ANIO_PUBLICACION: 1963
-    },
-    '6': {
-        IDLIBRO: 6, ISBN: '9786071606730', TITULO: 'Pedro Páramo',
-        GENERO: 'Novela', FORMATO: 'Físico · PDF',
-        STOCK_TOTAL: 7, STOCK_DISPONIBLE: 4, ANIO_PUBLICACION: 1955
-    },
-    '7': {
-        IDLIBRO: 7, ISBN: '9788437604442', TITULO: 'El Aleph',
-        GENERO: 'Cuentos', FORMATO: 'Físico',
-        STOCK_TOTAL: 4, STOCK_DISPONIBLE: 1, ANIO_PUBLICACION: 1949
-    },
-    '8': {
-        IDLIBRO: 8, ISBN: '9786124109058', TITULO: 'Los Ríos Profundos',
-        GENERO: 'Novela', FORMATO: 'Físico · EPUB',
-        STOCK_TOTAL: 5, STOCK_DISPONIBLE: 5, ANIO_PUBLICACION: 1958
-    }
-};
-
-// Fichas bibliográficas (MongoDB fichas_bibliograficas)
-const MOCK_FICHAS = {
-    '1': {
-        autor: 'Gabriel García Márquez', editorial: 'Editorial Sudamericana',
-        sinopsis: 'La saga de los Buendía en el mítico Macondo, donde lo fantástico y lo cotidiano se entrelazan a lo largo de siete generaciones. Una obra cumbre de la literatura latinoamericana que redefinió el realismo mágico.',
-        url_imagen: 'https://m.media-amazon.com/images/I/81MI6+TpYkL._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Realismo mágico', 'Novela', 'Literatura latinoamericana']
-    },
-    '2': {
-        autor: 'Isabel Allende', editorial: 'Plaza & Janés',
-        sinopsis: 'Una saga familiar que abarca tres generaciones marcadas por el amor, la violencia política y lo sobrenatural en un país innominado de Latinoamérica. Una novela épica sobre el poder y la memoria.',
-        url_imagen: 'https://m.media-amazon.com/images/I/91tUo+rK3WL._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Realismo mágico', 'Saga familiar', 'Política']
-    },
-    '3': {
-        autor: 'Mario Vargas Llosa', editorial: 'Seix Barral',
-        sinopsis: 'Un retrato brutal de la vida en el Colegio Militar Leoncio Prado de Lima. La novela explora el choque entre la violencia institucional, la amistad y la pérdida de la inocencia en la juventud peruana.',
-        url_imagen: '',
-        tags: ['Literatura peruana', 'Novela social', 'Premio Nobel']
-    },
-    '4': {
-        autor: 'Jorge Luis Borges', editorial: 'Sur',
-        sinopsis: 'Una colección de relatos donde laberintos, espejos y bibliotecas infinitas construyen universos que desafían la lógica. Considerada una de las obras más influyentes de la literatura universal del siglo XX.',
-        url_imagen: 'https://m.media-amazon.com/images/I/71R2Qo2U4FL._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Cuentos', 'Metaficción', 'Literatura argentina']
-    },
-    '5': {
-        autor: 'Julio Cortázar', editorial: 'Sudamericana',
-        sinopsis: 'Una novela que puede leerse en múltiples órdenes. La historia de Horacio Oliveira y su búsqueda existencial entre París y Buenos Aires. Un experimento literario que transformó la narrativa hispanoamericana.',
-        url_imagen: 'https://m.media-amazon.com/images/I/61r-Gtd2LML._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Novela experimental', 'Existencialismo', 'Boom latinoamericano']
-    },
-    '6': {
-        autor: 'Juan Rulfo', editorial: 'FCE',
-        sinopsis: 'Juan Preciado viaja al pueblo de Comala para encontrar a su padre, Pedro Páramo, y se encuentra con voces de muertos que pueblan un lugar fantasmal. Una obra breve y perfecta que mezcla lo mítico con lo cotidiano.',
-        url_imagen: 'https://m.media-amazon.com/images/I/71Xm+1M7DNL._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Literatura mexicana', 'Realismo mágico', 'Clásico']
-    },
-    '7': {
-        autor: 'Jorge Luis Borges', editorial: 'Losada',
-        sinopsis: 'Cuentos que exploran la infinitud, el tiempo cíclico y la identidad. "El Aleph" —un punto del espacio que contiene todos los puntos— es la pieza central de una de las colecciones más celebradas de Borges.',
-        url_imagen: 'https://m.media-amazon.com/images/I/71X1E8S5LwL._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Cuentos', 'Filosofía', 'Metaficción']
-    },
-    '8': {
-        autor: 'José María Arguedas', editorial: 'Losada',
-        sinopsis: 'El joven Ernesto recorre los Andes peruanos mientras observa el conflicto entre el mundo andino y la cultura occidental. Una novela lírica y profundamente peruana sobre la identidad y el desarraigo.',
-        url_imagen: 'https://m.media-amazon.com/images/I/81h2QyPyl+L._AC_UF1000,1000_QL80_.jpg',
-        tags: ['Literatura peruana', 'Indigenismo', 'Identidad cultural']
-    }
-};
-
-// Reseñas (MongoDB resenas)
-const MOCK_RESENAS = {
-    '1': [
-        { _id: 'r1', nombre_usuario: 'María López', puntuacion_estrellas: 5, comentario: 'Una obra maestra absoluta. Cada relectura revela algo nuevo.', fecha_publicacion: '2024-08-12' },
-        { _id: 'r2', nombre_usuario: 'Carlos Ruiz', puntuacion_estrellas: 5, comentario: 'Macondo se quedará para siempre en mi memoria.', fecha_publicacion: '2024-09-03' }
-    ],
-    '3': [
-        { _id: 'r3', nombre_usuario: 'Andrés Vera', puntuacion_estrellas: 4, comentario: 'Dura y necesaria. Vargas Llosa en su mejor momento.', fecha_publicacion: '2024-07-20' }
-    ]
-};
-
-// -------------------------------------------------------
-// Estado global de la pantalla
-// -------------------------------------------------------
+const portadasDeRespaldo = [
+    "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop", // 0
+    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop", // 1
+    "https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=400&auto=format&fit=crop", // 2
+    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&auto=format&fit=crop", // 3
+    "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=400&auto=format&fit=crop", // 4
+    "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&auto=format&fit=crop", // 5
+    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&auto=format&fit=crop", // 6
+    "https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400&auto=format&fit=crop", // 7
+    "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&auto=format&fit=crop", // 8
+    "https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a?w=400&auto=format&fit=crop", // 9
+    "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&auto=format&fit=crop", // 10
+    "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&auto=format&fit=crop", // 11. CAMBIADO Y VERIFICADO (Libros médicos)
+    "https://images.unsplash.com/photo-1614849963640-9cc74b2a826f?w=400&auto=format&fit=crop", // 12
+    "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&auto=format&fit=crop", // 13
+    "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&auto=format&fit=crop", // 14. CAMBIADO Y VERIFICADO (Biblioteca clásica)
+    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&auto=format&fit=crop", // 15. CAMBIADO Y VERIFICADO (Libro jurídico/formal)
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop", // 18
+];
 let idLibroActual = null;
 let estrellaSeleccionada = 0;
 
-// -------------------------------------------------------
-// INICIALIZACIÓN
-// -------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Leer el id de la URL
     const params = new URLSearchParams(window.location.search);
     idLibroActual = params.get('id');
 
@@ -147,20 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 2. Inyectar enlace de navbar según rol
     inyectarNavRol();
-
-    // 3. Cargar datos
-    await cargarLibro(idLibroActual);
-    await cargarResenas(idLibroActual);
+    await cargarDetallesHibridos(idLibroActual);
 });
 
-// -------------------------------------------------------
-// NAVBAR DINÁMICA POR ROL
-// -------------------------------------------------------
 function inyectarNavRol() {
     const rol = sessionStorage.getItem('nexuslib_rol');
     const navLinks = document.getElementById('nav-links');
+    if (!navLinks) return;
 
     let tercerEnlace = '';
     if (rol === 'admin') {
@@ -177,120 +53,85 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    // 1. Limpiamos toda la sesión
     sessionStorage.clear();
-    
-    // 2. Activamos la animación de salida (el telón blanco)
     document.body.classList.add('fade-out');
-    
-    // 3. Redirigimos siempre al login
-    setTimeout(() => {
-        window.location.href = '/Login.html';
-    }, 400);
+    setTimeout(() => { window.location.href = '/Login.html'; }, 400);
 }
 
-// -------------------------------------------------------
-// CARGAR DATOS DEL LIBRO
-// Aquí se harán los dos fetch (Oracle + MongoDB) en producción
-// -------------------------------------------------------
-async function cargarLibro(id) {
-    // ===== INTEGRACIÓN FUTURA =====
-    // const [libroRes, fichaRes] = await Promise.all([
-    //     fetch(`/api/oracle/libros/${id}`).then(r => r.json()),
-    //     fetch(`/api/mongo/fichas/${id}`).then(r => r.json())
-    // ]);
-    // poblarLibro(libroRes, fichaRes);
+// ARQUITECTURA DISTRIBUIDA: ORACLE + MONGO ATLAS
+async function cargarDetallesHibridos(id) {
+    try {
+        // 1. Fetch unificado a Oracle para datos de inventario
+        const resOracle = await fetch('/api/oracle/libros');
+        const libros = await resOracle.json();
+        const libroSql = libros.find(l => l.IDLIBRO == id);
 
-    // === SIMULACIÓN ACTUAL ===
-    const libro = MOCK_LIBROS[id];
-    const ficha = MOCK_FICHAS[id];
+        if (!libroSql) {
+            window.location.href = '/Catalogo.html';
+            return;
+        }
 
-    if (!libro) {
-        // Libro no encontrado: redirigir
-        window.location.href = '/Catalogo.html';
-        return;
+        // 2. Fetch a MongoDB Atlas para recuperar el foro de opiniones
+        const resMongo = await fetch(`/api/mongo/resenas/${id}`);
+        const resenasNoSql = await resMongo.json();
+
+        poblarInterfaz(libroSql);
+        renderResenas(resenasNoSql);
+
+    } catch (err) {
+        document.getElementById('libro-titulo').textContent = "Error de sincronización hibrida.";
     }
-
-    poblarLibro(libro, ficha || {});
 }
 
-function poblarLibro(libro, ficha) {
-    // Título de la pestaña
+function poblarInterfaz(libro) {
     document.title = `${libro.TITULO} — NexusLib`;
-
-    // Portada
-    const portadaImg = document.getElementById('libro-portada');
-    const portadaPH  = document.getElementById('libro-portada-placeholder');
-    if (ficha.url_imagen) {
-        portadaImg.src = ficha.url_imagen;
-        portadaImg.alt = `Portada de ${libro.TITULO}`;
-        portadaImg.style.display = 'block';
-        portadaPH.style.display = 'none';
-    } else {
-        portadaImg.style.display = 'none';
-        portadaPH.style.display = 'flex';
-    }
-
-    // Campos de texto
     document.getElementById('libro-titulo').textContent = libro.TITULO;
-    document.getElementById('libro-autor').textContent  = ficha.autor || '—';
-    document.getElementById('libro-isbn').textContent   = libro.ISBN || '—';
-    document.getElementById('libro-anio').textContent   = libro.ANIO_PUBLICACION || '—';
-    document.getElementById('libro-genero').textContent = libro.GENERO || '—';
-    document.getElementById('libro-formato').textContent= libro.FORMATO || '—';
+    document.getElementById('libro-autor').textContent  = libro.AUTOR || 'Autor Desconocido';
+    document.getElementById('libro-isbn').textContent   = libro.ISBN;
+    document.getElementById('libro-anio').textContent   = libro.ANIO_PUBLICACION;
+    document.getElementById('libro-genero').textContent = libro.GENERO;
+    document.getElementById('libro-formato').textContent = libro.FORMATO.toUpperCase();
     document.getElementById('libro-stock').textContent  = `${libro.STOCK_DISPONIBLE} / ${libro.STOCK_TOTAL}`;
+    document.getElementById('libro-sinopsis').textContent = libro.SINOPSIS || "Sinopsis no estructurada para esta obra.";
 
-    // Actualizar fila de editorial si existe ficha
-    if (ficha.editorial) {
-        const filasContainer = document.querySelector('.ficha-rows');
-        const filaEditorial = document.createElement('div');
-        filaEditorial.className = 'ficha-row';
-        filaEditorial.innerHTML = `
-            <span class="ficha-key">EDITORIAL</span>
-            <span class="ficha-val">${ficha.editorial}</span>
-        `;
-        filasContainer.appendChild(filaEditorial);
+    // 🖼️ ASIGNACIÓN DINÁMICA DE LA PORTADA REACCIÓN EN DETALLE (MATCH CON CATÁLOGO)
+   let libroImg = document.querySelector('img[alt="Portada del libro"]');
+    
+    // Si por si acaso no lo encuentra, usamos los selectores de respaldo anteriores
+    if (!libroImg) {
+        libroImg = document.querySelector('.detail-cover-wrapper img, .book-detail-cover img, img.libro-img-detalle, .detail-left img');
     }
 
-    // Tags
-    const tagsContainer = document.getElementById('libro-tags');
-    if (ficha.tags && ficha.tags.length > 0) {
-        tagsContainer.innerHTML = ficha.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    const linkImagen = portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
+
+    if (libroImg) {
+        // Inyectamos el link estable de Unsplash que sí te funcionó en el catálogo
+        libroImg.src = linkImagen;
+        libroImg.alt = `Portada de ${libro.TITULO}`;
+        libroImg.style.width = "100%";
+        libroImg.style.height = "100%";
+        libroImg.style.objectFit = "cover";
+        libroImg.style.borderRadius = "12px"; // Para que mantenga los bordes boleados estéticos
+    } else {
+        // Último recurso: si el HTML no tiene un img, buscamos un contenedor genérico
+        const contenedorPortada = document.querySelector('.detail-left, .book-sidebar, .catalog-detail');
+        if (contenedorPortada) {
+            contenedorPortada.innerHTML = `<img src="${linkImagen}" alt="Portada de ${libro.TITULO}" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">`;
+        } else {
+            console.warn("No se detectó la etiqueta de imagen en el HTML.");
+        }
     }
 
-    // Badge de disponibilidad
+    // Renderizar marcador visual de stock
     const badge = document.getElementById('disponibilidad-badge');
     if (libro.STOCK_DISPONIBLE > 0) {
         badge.className = 'disponibilidad-badge disponible';
-        badge.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-            Disponible: ${libro.FORMATO}
-        `;
+        badge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Copias Físicas Disponibles`;
     } else {
         badge.className = 'disponibilidad-badge agotado';
-        badge.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            Sin stock disponible
-        `;
+        badge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Sin Stock en Almacén`;
         document.getElementById('btn-prestar').disabled = true;
     }
-
-    // Sinopsis
-    const sinopsis = document.getElementById('libro-sinopsis');
-    sinopsis.textContent = ficha.sinopsis || 'Sinopsis no disponible para este título.';
-}
-
-// -------------------------------------------------------
-// CARGAR RESEÑAS (MongoDB)
-// -------------------------------------------------------
-async function cargarResenas(id) {
-    // ===== INTEGRACIÓN FUTURA =====
-    // const resenas = await fetch(`/api/mongo/resenas/${id}`).then(r => r.json());
-    // renderResenas(resenas);
-
-    // === SIMULACIÓN ACTUAL ===
-    const resenas = MOCK_RESENAS[id] || [];
-    renderResenas(resenas);
 }
 
 function renderResenas(resenas) {
@@ -298,7 +139,7 @@ function renderResenas(resenas) {
     const empty  = document.getElementById('resenas-empty');
     const summary = document.getElementById('rating-summary');
 
-    if (resenas.length === 0) {
+    if (!resenas || resenas.length === 0) {
         lista.style.display = 'none';
         empty.style.display = 'block';
         summary.style.display = 'none';
@@ -307,8 +148,8 @@ function renderResenas(resenas) {
 
     lista.style.display = 'flex';
     empty.style.display = 'none';
+    summary.style.display = 'flex';
 
-    // Calcular promedio y distribución
     const total = resenas.length;
     const suma  = resenas.reduce((acc, r) => acc + r.puntuacion_estrellas, 0);
     const promedio = (suma / total).toFixed(1);
@@ -316,92 +157,71 @@ function renderResenas(resenas) {
     const dist = {5:0, 4:0, 3:0, 2:0, 1:0};
     resenas.forEach(r => dist[r.puntuacion_estrellas]++);
 
-    // Resumen de puntuación
     document.getElementById('rating-promedio').textContent = promedio;
     document.getElementById('rating-stars-big').innerHTML = '★'.repeat(Math.round(promedio));
-    document.getElementById('rating-count').textContent = `${total} reseña${total !== 1 ? 's' : ''}`;
+    document.getElementById('rating-count').textContent = `${total} comentario${total !== 1 ? 's' : ''}`;
 
     const barsContainer = document.getElementById('rating-bars');
     barsContainer.innerHTML = '';
     [5,4,3,2,1].forEach(n => {
-        const pct = total > 0 ? Math.round((dist[n] / total) * 100) : 0;
+        const pct = Math.round((dist[n] / total) * 100);
         barsContainer.innerHTML += `
             <div class="rating-bar-row">
-                <span class="bar-label">
-                    ${n}<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </span>
+                <span class="bar-label">${n} ★</span>
                 <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
                 <span class="bar-count">${dist[n]}</span>
             </div>
         `;
     });
 
-    // Tarjetas de reseñas
     lista.innerHTML = '';
     resenas.forEach(r => {
         const inicial = r.nombre_usuario.charAt(0).toUpperCase();
         const fecha = new Date(r.fecha_publicacion).toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
-        const estrellas = '★'.repeat(r.puntuacion_estrellas) + '☆'.repeat(5 - r.puntuacion_estrellas);
-
+        
         lista.innerHTML += `
-            <div class="resena-card">
-                <div class="resena-top">
-                    <div class="resena-meta">
-                        <div class="resena-avatar">${inicial}</div>
-                        <div class="resena-info">
-                            <span class="resena-nombre">${r.nombre_usuario}</span>
-                            <span class="resena-fecha">${fecha}</span>
+            <div class="resena-card" style="border-bottom:1px solid #f1f5f9; padding:16px 0;">
+                <div class="resena-top" style="display:flex; justify-content:between; align-items:center;">
+                    <div class="resena-meta" style="display:flex; gap:12px; align-items:center;">
+                        <div class="resena-avatar" style="width:36px; height:36px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold;">${inicial}</div>
+                        <div class="resena-info" style="display:flex; flex-direction:column;">
+                            <span class="resena-nombre" style="font-weight:600; color:var(--neutral-dark);">${r.nombre_usuario}</span>
+                            <span class="resena-fecha" style="font-size:0.75rem; color:var(--neutral-mid);">${fecha}</span>
                         </div>
                     </div>
-                    <span class="resena-estrellas">${estrellas}</span>
+                    <span class="resena-estrellas" style="color:#eab308; margin-left:auto;">${'★'.repeat(r.puntuacion_estrellas)}</span>
                 </div>
-                <p class="resena-comentario">${r.comentario}</p>
+                <p class="resena-comentario" style="margin-top:10px; font-size:0.92rem; color:var(--neutral-mid); line-height:1.5;">${r.comentario}</p>
             </div>
         `;
     });
 }
 
-// -------------------------------------------------------
-// FORMULARIO DE NUEVA RESEÑA
-// -------------------------------------------------------
 function toggleFormResena() {
     const form = document.getElementById('form-resena');
     const visible = form.style.display !== 'none';
     form.style.display = visible ? 'none' : 'flex';
     if (!visible) {
-        // Limpiar al abrir
         estrellaSeleccionada = 0;
         updateStarPicker(0);
-        document.getElementById('resena-nombre').value = '';
+        document.getElementById('resena-nombre').value = sessionStorage.getItem('nexuslib_usuario') || '';
         document.getElementById('resena-comentario').value = '';
     }
 }
 
-function pickStar(val) {
-    estrellaSeleccionada = val;
-    updateStarPicker(val);
-}
+function pickStar(val) { estrellaSeleccionada = val; updateStarPicker(val); }
+function hoverStar(val) { updateStarPicker(val); }
+function resetStar() { updateStarPicker(estrellaSeleccionada); }
 
-// Añade estas dos funciones debajo de pickStar(val)
-function hoverStar(val) {
-    updateStarPicker(val);
-}
-
-function resetStar() {
-    updateStarPicker(estrellaSeleccionada);
-}
-
-// Asegúrate de que updateStarPicker se vea así:
 function updateStarPicker(val) {
     document.querySelectorAll('.star-pick').forEach(btn => {
-        // Parseamos el dataset a entero para la comparación matemática
-        const starVal = parseInt(btn.dataset.val);
-        btn.classList.toggle('active', starVal <= val);
+        btn.classList.toggle('active', parseInt(btn.dataset.val) <= val);
     });
 }
 
+// POST DE RESEÑAS DIRECTO A MONGODB ATLAS
 async function enviarResena() {
-    const nombre     = document.getElementById('resena-nombre').value.trim();
+    const nombre = document.getElementById('resena-nombre').value.trim();
     const comentario = document.getElementById('resena-comentario').value.trim();
 
     if (!nombre || !comentario || estrellaSeleccionada === 0) {
@@ -409,45 +229,61 @@ async function enviarResena() {
         return;
     }
 
-    // ===== INTEGRACIÓN FUTURA =====
-    // await fetch('/api/mongo/resenas', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //         idLibro: idLibroActual,
-    //         usuario: nombre,
-    //         estrellas: estrellaSeleccionada,
-    //         comentario
-    //     })
-    // });
+    try {
+        const res = await fetch('/api/mongo/resenas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                idLibro: idLibroActual,
+                usuario: nombre,
+                estrellas: estrellaSeleccionada,
+                comentario
+            })
+        });
 
-    // === SIMULACIÓN ACTUAL: añadir localmente ===
-    if (!MOCK_RESENAS[idLibroActual]) MOCK_RESENAS[idLibroActual] = [];
-    MOCK_RESENAS[idLibroActual].unshift({
-        _id: 'new_' + Date.now(),
-        nombre_usuario: nombre,
-        puntuacion_estrellas: estrellaSeleccionada,
-        comentario,
-        fecha_publicacion: new Date().toISOString().split('T')[0]
-    });
-
-    toggleFormResena();
-    await cargarResenas(idLibroActual);
+        if (res.ok) {
+            toggleFormResena();
+            await cargarDetallesHibridos(idLibroActual);
+        } else {
+            alert('Error en el almacenamiento de Atlas.');
+        }
+    } catch (err) {
+        alert('Fallo de communication: ' + err.message);
+    }
 }
 
-// -------------------------------------------------------
-// SOLICITAR PRÉSTAMO
-// -------------------------------------------------------
-function solicitarPrestamo() {
-    const rol = sessionStorage.getItem('nexuslib_rol');
-    if (!rol) {
-        // No hay sesión: ir a login
+// INSERCIÓN DE OPERACIONES ACID TRANSACCIONALES EN ORACLE
+async function solicitarPrestamo() {
+    const emailActivo = sessionStorage.getItem('nexuslib_email');
+    if (!emailActivo) {
         sessionStorage.setItem('nexuslib_returnTo', `/DetalleLibro.html?id=${idLibroActual}`);
         window.location.href = '/Login.html';
         return;
     }
 
-    // ===== INTEGRACIÓN FUTURA =====
-    // Abrir modal con formulario de préstamo o POST /api/oracle/prestamos
-    alert(`Préstamo solicitado (simulado). En producción esto creará el registro en Oracle.`);
+    const hoy = new Date();
+    hoy.setDate(hoy.getDate() + 7);
+    const fechaLimiteStr = hoy.toISOString().split('T')[0];
+
+    try {
+        const res = await fetch('/api/oracle/prestamos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                idUsuario: 3, 
+                idLibro: idLibroActual,
+                fechaLimite: fechaLimiteStr
+            })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(`🎉 ¡Éxito Relacional!\n${data.mensaje}\nTienes hasta el ${fechaLimiteStr} para devolverlo.`);
+            await cargarDetallesHibridos(idLibroActual);
+        } else {
+            alert('Fallo en la regla de negocio: ' + data.error);
+        }
+    } catch (err) {
+        alert('Error transaccional en Oracle: ' + err.message);
+    }
 }

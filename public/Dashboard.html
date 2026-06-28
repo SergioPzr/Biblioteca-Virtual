@@ -68,14 +68,39 @@
                 <div class="admin-card">
                     <h3>Registrar Nuevo Préstamo</h3>
                     <form class="admin-form">
-                        <div class="form-grid">
-                            <input type="number" placeholder="Código de préstamo (Ej. 911)" class="admin-input">
-                            <input type="number" placeholder="ID Usuario (Ej. 102)" class="admin-input">
-                            <input type="number" placeholder="ID Libro (Ej. 501)" class="admin-input">
-                            <input type="date" class="admin-input">
+                        <div class="form-grid">                      
+                            <input type="number" placeholder="ID Usuario" class="admin-input" id="prestamo-usuario-id">
+                            <input type="number" placeholder="ID Libro" class="admin-input" id="prestamo-libro-id">
+                            <input type="date" class="admin-input" id="prestamo-fecha">
                         </div>
-                        <button type="button" class="btn btn-primary" style="margin-top: 16px;">Confirmar Operación Relacional</button>
+                        <button type="button" class="btn btn-primary" style="margin-top: 16px;">Confirmar</button>
                     </form>
+                </div>
+                <div class="admin-table-container" style="margin-top: 32px; padding: 20px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    <h2 class="font-display" style="font-size: 1.4rem; color: var(--neutral-dark); margin-bottom: 16px;">
+                        Préstamos Existentes en el Sistema
+                    </h2>
+                    
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+                            <thead>
+                                <tr style="background: var(--neutral-light, #f8fafc); border-bottom: 2px solid #e2e8f0;">
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">ID Préstamo</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Usuario</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Libro / Título</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Salida</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Límite</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Devolución</th>
+                                    <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prestamos-admin-tabla">
+                                <tr>
+                                    <td colspan="6" style="padding: 16px; text-align: center; color: var(--neutral-mid);">Cargando historial transaccional...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 

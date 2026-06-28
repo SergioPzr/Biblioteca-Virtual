@@ -21,51 +21,56 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    // 1. Limpiamos toda la sesión
-    sessionStorage.clear();
+    const rol = sessionStorage.getItem('nexuslib_rol');
     
-    // 2. Activamos la animación de salida (el telón blanco)
+    // Si ya tenía sesión iniciada, esto funciona como un "Cerrar Sesión" seguro
+    if (rol) {
+        sessionStorage.clear();
+    }
+    
+    // Activamos la animación de transición estética
     document.body.classList.add('fade-out');
     
-    // 3. Redirigimos siempre al login
+    // Redirigimos al formulario de Login
     setTimeout(() => {
         window.location.href = '/Login.html';
-    }, 400);
+    }, 250); // Ajustado a la velocidad del telón blanco de Transitions.js
 }
 
 // Simulación de los datos del Backend (Se añadieron libros extra para asegurar el funcionamiento del carrusel)
+// Simulación de los datos del Backend con enlaces Ultra Estables de Unsplash
 const mockFeaturedBooks = [
     {
         id: '1', title: 'Cien años de soledad', author: 'Gabriel García Márquez', rating: 5, reviews: 1284,
-        coverUrl: 'https://m.media-amazon.com/images/I/81MI6+TpYkL._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop' // Libro místico/clásico
     },
     {
         id: '2', title: 'La casa de los espíritus', author: 'Isabel Allende', rating: 5, reviews: 932,
-        coverUrl: 'https://m.media-amazon.com/images/I/91tUo+rK3WL._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&auto=format&fit=crop' // Naturaleza/Realismo mágico
     },
     {
         id: '3', title: 'La ciudad y los perros', author: 'Mario Vargas Llosa', rating: 4, reviews: 612,
-        coverUrl: '' 
+        coverUrl: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&auto=format&fit=crop' // Estructura rígida/militar
     },
     {
         id: '4', title: 'Ficciones', author: 'Jorge Luis Borges', rating: 5, reviews: 1502,
-        coverUrl: 'https://m.media-amazon.com/images/I/71R2Qo2U4FL._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400&auto=format&fit=crop' // Laberinto/Fantasía
     },
     {
         id: '5', title: 'Rayuela', author: 'Julio Cortázar', rating: 5, reviews: 775,
-        coverUrl: 'https://m.media-amazon.com/images/I/61r-Gtd2LML._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop' // Creativo/Experimental
     },
     {
         id: '6', title: 'Pedro Páramo', author: 'Juan Rulfo', rating: 5, reviews: 845,
-        coverUrl: 'https://m.media-amazon.com/images/I/71Xm+1M7DNL._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&auto=format&fit=crop' // Páramo/Antiguo
     },
     {
         id: '7', title: 'El Aleph', author: 'Jorge Luis Borges', rating: 5, reviews: 1102,
-        coverUrl: 'https://m.media-amazon.com/images/I/71X1E8S5LwL._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop' 
     },
     {
         id: '8', title: 'Los Ríos Profundos', author: 'José María Arguedas', rating: 5, reviews: 450,
-        coverUrl: 'https://m.media-amazon.com/images/I/81h2QyPyl+L._AC_UF1000,1000_QL80_.jpg'
+        coverUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&auto=format&fit=crop' // Paisaje/Andino
     }
 ];
 
