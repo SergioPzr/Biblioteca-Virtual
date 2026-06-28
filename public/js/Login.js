@@ -82,8 +82,57 @@ async function handleLogin() {
 // Al cargar el Login: si ya está autenticado, lo derivamos a donde pertenece
 // =========================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const rolActivo = sessionStorage.getItem('nexuslib_rol');
-    if (rolActivo) {
-        window.location.href = rolActivo === 'admin' ? '/Dashboard.html' : '/Inicio.html';
-    }
+    // 1. Capturamos los campos usando selectores precisos
+    const txtEmail = document.querySelector('input[type="email"]');
+    const txtPass  = document.querySelector('input[type="password"]');
+    
+    // Capturamos el botón verde de Iniciar Sesión por su clase o texto
+    const btnIniciarSesion = document.querySelector('.btn-submit') || 
+                             document.querySelector('button[type="submit"]') || 
+                             Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Iniciar sesión'));
+
+    // 🤖 CAPTURADORES DE CLIC PARA AUTORELLENO (Cliente / Admin)
+    const botonesRol = document.querySelectorAll('button, .btn');
+    botonesRol.forEach(btn => {
+        if (btn.innerText.includes('Cliente')) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (txtEmail && txtPass) {
+                    txtEmail.value = "alumno.cliente@urp.edu.pe";
+                    txtPass.value = "cliente123";
+                    txtPass.focus(); // Mueve el cursor automáticamente a la contraseña
+                }
+            });
+        }
+        if (btn.innerText.includes('Admin')) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (txtEmail && txtPass) {
+                    txtEmail.value = "admin@urp.edu.pe";
+                    txtPass.value = "admin123";
+                    txtPass.focus(); // Mueve el cursor automáticamente a la contraseña
+                }
+            });
+        }
+    });
+
+    // ⚡ CONTROLADOR ESTRICTO PARA LA TECLA ENTER
+    const manejarTeclaEnter = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evita comportamientos raros del navegador
+            
+            if (btnIniciarSesion) {
+                console.log("Detectado Enter: Disparando clic virtual en Iniciar Sesión...");
+                btnIniciarSesion.click(); // Hace el clic por ti de forma automática
+            } else {
+                // Si por alguna razón no encuentra el botón, intentamos llamar la función global directa
+                if (typeof iniciarSesion === 'function') iniciarSesion();
+                if (typeof ejecutarLogin === 'function') ejecutarLogin();
+            }
+        }
+    };
+
+    // Escuchamos el teclado en ambos cuadros de texto
+    if (txtEmail) txtEmail.addEventListener('keydown', manejarTeclaEnter);
+    if (txtPass)  txtPass.addEventListener('keydown', manejarEnter);
 });
