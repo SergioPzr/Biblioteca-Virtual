@@ -8,21 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Cargar datos iniciales reales de Oracle al entrar al Dashboard
     cargarInventarioOracle();
-    cargarMultasOracle();       // 🌟 REACTIVADO: Sincroniza las multas reales desde el inicio
-    obtenerTodosLosPrestamos(); // Sincroniza los préstamos existentes en orden ASC
+    cargarMultasOracle();       
+    obtenerTodosLosPrestamos(); 
 
     if (typeof inyectarNavRol === 'function') inyectarNavRol(); 
 
-    // Vincular botón de Confirmar Operación Relacional (Préstamos Oracle)
     const btnRegistrarPrestamo = document.querySelector('#panel-prestamos form button');
     if (btnRegistrarPrestamo) {
         btnRegistrarPrestamo.type = 'button';
         btnRegistrarPrestamo.onclick = registrarPrestamoAdmin;
     }
 
-    // Vincular botón de Consultar Foros NoSQL (MongoDB Atlas)
     const btnConsultarMongo = document.querySelector('#panel-moderacion .search-bar button');
     if (btnConsultarMongo) {
         btnConsultarMongo.type = 'button';
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Control de navegación interna entre pestañas del Dashboard
 function switchPanel(panelId) {
     document.querySelectorAll('.admin-panel').forEach(p => p.style.display = 'none');
     document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
@@ -38,7 +34,6 @@ function switchPanel(panelId) {
     const targetPanel = document.getElementById('panel-' + panelId);
     if (targetPanel) targetPanel.style.display = 'block';
     
-    // Activar el tab correcto buscando por onclick
     document.querySelectorAll('.nav-tab').forEach(btn => {
         if (btn.getAttribute('onclick') === `switchPanel('${panelId}')`) {
             btn.classList.add('active');
@@ -66,23 +61,30 @@ async function cargarInventarioOracle() {
 
         libros.forEach(l => {
             const badgeClass = l.STOCK_DISPONIBLE > 0 ? 'badge-green' : 'badge-red';
-            // Escapar atributos para data-* (sinopsis puede tener comillas)
             const libroData = encodeURIComponent(JSON.stringify({
                 id: l.IDLIBRO, isbn: l.ISBN, titulo: l.TITULO, autor: l.AUTOR,
                 genero: l.GENERO, formato: l.FORMATO, stock_total: l.STOCK_TOTAL,
                 stock_disponible: l.STOCK_DISPONIBLE, anio: l.ANIO_PUBLICACION,
-                sinopsis: l.SINOPSIS || '', url_imagen: l.URL_IMAGEN || ''
+                sinopsis: l.SINOPSIS || ''
             }));
+            
             tbody.innerHTML += `
                 <tr>
                     <td>${l.IDLIBRO}</td>
                     <td>${l.ISBN}</td>
-                    <td>${l.TITULO}</td>
+                    <td><strong>${l.TITULO}</strong></td>
                     <td>${l.GENERO}</td>
                     <td>${(l.FORMATO || '').toUpperCase()}</td>
                     <td><span class="badge ${badgeClass}">${l.STOCK_DISPONIBLE} / ${l.STOCK_TOTAL}</span></td>
                     <td>
-                        <button class="btn-edit" onclick="abrirModalLibro('${libroData}')">✏️ Editar</button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button onclick="abrirModalLibro('${libroData}')" style="background: rgba(59,130,246,0.1); color: #1d4ed8; border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Editar Libro">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button onclick="eliminarLibroOracle(${l.IDLIBRO}, '${l.TITULO.replace(/'/g, "\\'")}')" style="background: rgba(239,68,68,0.1); color: #dc2626; border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Eliminar Libro">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -92,15 +94,90 @@ async function cargarInventarioOracle() {
     }
 }
 
+async function eliminarLibroOracle(id, titulo) {
+    if (!confirm(`¿Está seguro de que desea remover permanentemente la obra '${titulo}' de Oracle?`)) return;
+
+    try {
+        const res = await fetch(`/api/oracle/libros/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (res.ok) {
+            mostrarToast(`🗑️ ${data.mensaje}`);
+            await cargarInventarioOracle();
+        } else {
+            alert(`⚠️ Error Relacional:\n${data.error}`);
+        }
+    } catch (err) {
+        alert("Fallo de comunicación con la base de datos: " + err.message);
+    }
+}
+
+function abrirModalAgregarLibro() {
+    document.getElementById('form-agregar-libro').reset();
+    document.getElementById('modal-agregar-libro').style.display = 'flex';
+}
+
+async function confirmarAgregarLibro() {
+    // Capturamos los elementos asegurando limpieza de espacios
+    const isbnVal   = document.getElementById('add-isbn').value.trim();
+    const tituloVal = document.getElementById('add-titulo').value.trim();
+    const autorVal  = document.getElementById('add-autor').value.trim();
+    const generoVal = document.getElementById('add-genero').value.trim();
+    const formatoVal = document.getElementById('add-formato').value;
+    const anioVal   = document.getElementById('add-anio').value.trim();
+    const totalVal  = document.getElementById('add-stock-total').value.trim();
+    const dispVal   = document.getElementById('add-stock-disponible').value.trim();
+    const sinopVal  = document.getElementById('add-sinopsis').value.trim();
+
+    if (!tituloVal || !isbnVal) {
+        alert("⚠️ El Título y el ISBN son campos relacionales obligatorios.");
+        return;
+    }
+
+    const payload = {
+        isbn: isbnVal,
+        titulo: tituloVal,
+        autor: autorVal || "Anónimo",
+        genero: generoVal || "General",
+        formato: formatoVal,
+        anio_publicacion: anioVal ? parseInt(anioVal) : null,
+        stock_total: totalVal ? parseInt(totalVal) : 0,
+        stock_disponible: dispVal ? parseInt(dispVal) : 0,
+        sinopsis: sinopVal || ""
+    };
+
+    try {
+        const res = await fetch('/api/oracle/libros', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+
+        if (res.ok) {
+            cerrarModal('modal-agregar-libro');
+            // Limpiar el formulario nativo
+            const form = document.getElementById('form-agregar-libro');
+            if (form) form.reset();
+            
+            // Recargar la tabla reactivamente
+            await cargarInventarioOracle();
+            mostrarToast(`✅ ${data.mensaje}`);
+        } else {
+            alert(`⚠️ Error devuelto por Oracle:\n${data.error}`);
+        }
+    } catch (err) {
+        alert("Error de infraestructura al enviar datos a Oracle: " + err.message);
+    }
+}
+
 async function cargarMultasOracle() {
     try {
         const res = await fetch('/api/oracle/multas');
         const multas = await res.json();
-        
         const tbody = document.querySelector('#panel-multas .admin-table tbody');
         if (!tbody) return;
-        
-        // 🌟 CLAVE: Limpiamos por completo el contenido estático del HTML (M-01, 911) antes de pintar
         tbody.innerHTML = '';
 
         if (!multas || multas.length === 0) {
@@ -109,14 +186,11 @@ async function cargarMultasOracle() {
         }
 
         multas.forEach(m => {
-            // Controlamos de forma estricta si las propiedades vienen en MAYÚSCULAS o minúsculas desde el backend
-            const idMulta     = m.IDMULTA || m.idMulta || m.ID || '---';
+            const idMulta     = m.IDMULTA || m.idMulta || '---';
             const idPrestamo  = m.IDPRESTAMO || m.idPrestamo || '---';
             const monto       = m.MONTO || m.monto || 0;
-            const diasRetraso = m.DIAS_RETRASO || m.dias_retraso || m.DIASRETRASO || 0;
-            const estadoPago  = (m.ESTADO_PAGO || m.estado_pago || m.ESTADO || 'pendiente').toLowerCase();
-
-            // Respetamos los estilos exactos de los badges de tu compañero
+            const diasRetraso = m.DIAS_RETRASO || m.dias_retraso || 0;
+            const estadoPago  = (m.ESTADO_PAGO || m.estado_pago || 'pendiente').toLowerCase();
             const estadoBadge = estadoPago === 'pagado' ? 'badge-green' : 'badge-red';
             
             tbody.innerHTML += `
@@ -135,7 +209,7 @@ async function cargarMultasOracle() {
 }
 
 // =========================================================================
-// 🏛️ REGISTRO Y SEGUIMIENTO DE PRÉSTAMOS — ORACLE SQL (ACID)
+// 🏛 *REGISTRO Y SEGUIMIENTO DE PRÉSTAMOS — ORACLE SQL (ACID)*
 // =========================================================================
 
 async function registrarPrestamoAdmin() {
@@ -158,16 +232,13 @@ async function registrarPrestamoAdmin() {
                 fechaLimite: fechaLimite
             })
         });
-        
         const data = await res.json();
 
         if (res.ok) {
-            alert(`🎉 ¡Éxito Relacional!\nPréstamo registrado correctamente.\nOracle asignó la clave primaria automática de forma limpia.`);
-            
+            alert(`🎉 ¡Éxito Relacional!\nPréstamo registrado correctamente.`);
             document.getElementById('prestamo-usuario-id').value = '';
             document.getElementById('prestamo-libro-id').value = '';
             document.getElementById('prestamo-fecha').value = '';
-
             obtenerTodosLosPrestamos();
         } else {
             alert(`⚠️ Error en las Reglas de Negocio:\n${data.error}`);
@@ -208,8 +279,6 @@ function renderizarTablaPrestamos(listaPrestamos) {
         const idPrestamo = p.IDPRESTAMO || '---';
         const usuario    = p.IDUSUARIO || '---';
         const libro      = p.IDLIBRO || '---';
-        
-        // Procesar fechas
         const fSalida = p.FECHASALIDA ? new Date(p.FECHASALIDA).toLocaleDateString('es-PE') : '---';
         const fLimite = p.FECHALIMITE ? new Date(p.FECHALIMITE).toLocaleDateString('es-PE') : '---';
         const fDevolucion = p.FECHADEVOLUCION ? new Date(p.FECHADEVOLUCION).toLocaleDateString('es-PE') : 'Pendiente';
@@ -225,7 +294,6 @@ function renderizarTablaPrestamos(listaPrestamos) {
             badgeEstado = `<span class="badge" style="background: #eff6ff; color: #1d4ed8;">Activo</span>`;
         }
 
-        // 🌟 CORREGIDO: Ahora inyectamos exactamente 7 columnas (td) haciendo match perfecto con el HTML
         const fila = document.createElement('tr');
         fila.style.borderBottom = '1px solid #e2e8f0';
         fila.innerHTML = `
@@ -257,7 +325,6 @@ async function consultarForoMongo() {
     try {
         const res = await fetch(`/api/mongo/resenas/${idLibro}`);
         const resenas = await res.json();
-
         const viejoContenedor = document.getElementById('auditoria-resultados');
         if (viejoContenedor) viejoContenedor.remove();
 
@@ -273,12 +340,9 @@ async function consultarForoMongo() {
                 <h3>Foro Literario (ID: ${idLibro})</h3>
                 <p style="margin-top:4px; margin-bottom:16px; font-size:0.85rem; color:var(--neutral-mid);">Documentos distribuidos recuperados de la nube.</p>
                 <table class="admin-table">
-                    <thead>
-                        <tr><th>Usuario</th><th>Valoración</th><th>Comentario</th><th>Acción</th></tr>
-                    </thead>
+                    <thead><tr><th>Usuario</th><th>Valoración</th><th>Comentario</th><th>Acción</th></tr></thead>
                     <tbody>
             `;
-
             resenas.forEach(r => {
                 tablaHtml += `
                     <tr>
@@ -290,16 +354,12 @@ async function consultarForoMongo() {
                                 Purgar Documento
                             </button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
-
             tablaHtml += `</tbody></table>`;
             resultadoCard.innerHTML = tablaHtml;
         }
-
         document.getElementById('panel-moderacion').appendChild(resultadoCard);
-
     } catch (err) {
         alert("Fallo al auditar foros en Atlas: " + err.message);
     }
@@ -307,11 +367,9 @@ async function consultarForoMongo() {
 
 async function eliminarDocumentoAtlas(idMongo) {
     if (!confirm("¿Desea purgar este documento de forma permanente del clúster distribuido?")) return;
-
     try {
         const res = await fetch(`/api/mongo/resenas/${idMongo}`, { method: 'DELETE' });
         const data = await res.json();
-
         alert(data.mensaje);
         consultarForoMongo();
     } catch (err) {
@@ -364,12 +422,11 @@ async function cargarUsuariosAtlas() {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:#dc2626;">⚠️ Error al cargar: ${err.message}</td></tr>`;
     }
 }
-// ===== MODAL MEMBRESÍA =====
+
 function abrirModalMembresia(id, nombre, membresiaActual) {
     document.getElementById('modal-membresia-id').value = id;
     document.getElementById('modal-membresia-nombre').textContent = nombre;
     const select = document.getElementById('modal-membresia-select');
-    // Seleccionar la membresía actual
     for (let opt of select.options) {
         opt.selected = opt.value === membresiaActual;
     }
@@ -379,7 +436,6 @@ function abrirModalMembresia(id, nombre, membresiaActual) {
 async function confirmarMembresia() {
     const id        = document.getElementById('modal-membresia-id').value;
     const membresia = document.getElementById('modal-membresia-select').value;
-
     try {
         const res = await fetch(`/api/oracle/usuarios/${id}/membresia`, {
             method: 'PUT',
@@ -387,7 +443,6 @@ async function confirmarMembresia() {
             body: JSON.stringify({ membresia })
         });
         const data = await res.json();
-
         if (res.ok) {
             cerrarModal('modal-membresia');
             await cargarUsuariosAtlas();
@@ -403,7 +458,7 @@ async function confirmarMembresia() {
 // ===== MODAL LIBRO =====
 function abrirModalLibro(encodedData) {
     const l = JSON.parse(decodeURIComponent(encodedData));
-    document.getElementById('edit-libro-id').value        = l.id;
+    document.getElementById('edit-libro-id').value         = l.id;
     document.getElementById('edit-isbn').value            = l.isbn || '';
     document.getElementById('edit-titulo').value          = l.titulo || '';
     document.getElementById('edit-autor').value           = l.autor || '';
@@ -412,15 +467,12 @@ function abrirModalLibro(encodedData) {
     document.getElementById('edit-stock-total').value     = l.stock_total || 0;
     document.getElementById('edit-stock-disponible').value = l.stock_disponible || 0;
     document.getElementById('edit-sinopsis').value        = l.sinopsis || '';
-    document.getElementById('edit-url-imagen').value      = l.url_imagen || '';
     document.getElementById('modal-libro-titulo-ref').textContent = l.titulo || 'Obra sin título';
 
-    // Seleccionar formato
     const fmtSelect = document.getElementById('edit-formato');
     for (let opt of fmtSelect.options) {
         opt.selected = opt.value === (l.formato || '').toLowerCase();
     }
-
     document.getElementById('modal-libro').style.display = 'flex';
 }
 
@@ -436,7 +488,7 @@ async function confirmarEdicionLibro() {
         stock_total:       document.getElementById('edit-stock-total').value,
         stock_disponible:  document.getElementById('edit-stock-disponible').value,
         sinopsis:          document.getElementById('edit-sinopsis').value.trim(),
-        url_imagen:        document.getElementById('edit-url-imagen').value.trim()
+        url_imagen:        null // Aseguramos que no interfiera ninguna URL obsoleta
     };
 
     if (!payload.titulo || !payload.isbn) {
@@ -451,7 +503,6 @@ async function confirmarEdicionLibro() {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-
         if (res.ok) {
             cerrarModal('modal-libro');
             await cargarInventarioOracle();
@@ -464,19 +515,16 @@ async function confirmarEdicionLibro() {
     }
 }
 
-// ===== UTILIDADES MODALES =====
 function cerrarModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
-// Cerrar modal al hacer click fuera
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-overlay')) {
         e.target.style.display = 'none';
     }
 });
 
-// Toast de confirmación
 function mostrarToast(mensaje) {
     let toast = document.getElementById('nexus-toast');
     if (!toast) {
@@ -484,7 +532,7 @@ function mostrarToast(mensaje) {
         toast.id = 'nexus-toast';
         toast.style.cssText = `
             position: fixed; bottom: 32px; right: 32px; z-index: 2000;
-            background: var(--surface-dark); color: white;
+            background: #1e293b; color: white;
             padding: 14px 22px; border-radius: 12px;
             font-family: var(--font-sans); font-size: 0.92rem; font-weight: 500;
             box-shadow: 0 8px 24px rgba(0,0,0,0.2);

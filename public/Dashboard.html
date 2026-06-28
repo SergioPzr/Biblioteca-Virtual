@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin — NexusLib</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght=600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/Dashboard.css">
 </head>
 <body>
 <div class="dashboard-layout">
 
-    <!-- SIDEBAR -->
     <aside class="dashboard-sidebar">
         <div class="sidebar-brand">
             <img src="/images/logo.png" alt="NexusLib" class="sidebar-logo">
@@ -44,17 +43,21 @@
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="dashboard-main">
 
-        <!-- PANEL 1: INVENTARIO -->
         <section id="panel-inventario" class="admin-panel active">
-            <h1 class="font-display">Inventario General de Obras</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h1 class="font-display">Inventario General de Obras</h1>
+                <button class="btn-add-libro" onclick="abrirModalAgregarLibro()" style="display: flex; align-items: center; gap: 8px; background: var(--primary, #01ae6b); color: white; border: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-family: var(--font-sans); transition: background 0.3s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Agregar Libro
+                </button>
+            </div>
             <p class="panel-desc">Monitoreo transaccional de libros en tiempo real a través de Oracle.</p>
             <div class="admin-card">
                 <table class="admin-table">
                     <thead>
-                        <tr><th>ID</th><th>ISBN</th><th>Título</th><th>Género</th><th>Formato</th><th>Stock</th><th>Acciones</th></tr>
+                        <tr><th>ID</th><th>ISBN</th><th>Título</th><th>Género</th><th>Formato</th><th>Stock</th><th style="width: 160px; text-align: center;">Acciones</th></tr>
                     </thead>
                     <tbody>
                         <tr><td colspan="7" style="text-align:center;padding:16px;color:var(--neutral-mid);">Cargando inventario...</td></tr>
@@ -63,7 +66,6 @@
             </div>
         </section>
 
-        <!-- PANEL 2: PRÉSTAMOS -->
         <section id="panel-prestamos" class="admin-panel" style="display:none;">
             <h1 class="font-display">Salida de Material Bibliográfico</h1>
             <p class="panel-desc">El procesamiento automático descuenta stock mediante transacciones ACID.</p>
@@ -75,33 +77,32 @@
                         <input type="number" placeholder="ID Libro" class="admin-input" id="prestamo-libro-id">
                         <input type="date" class="admin-input" id="prestamo-fecha">
                     </div>
-                    <button type="button" class="btn btn-primary" style="margin-top:16px;">Confirmar</button>
+                    <button type="button" class="btn btn-primary" style="margin-top: 16px;">Confirmar</button>
                 </form>
             </div>
-            <div class="admin-card" style="margin-top:32px;">
-                <h2 class="font-display" style="font-size:1.4rem;color:var(--neutral-dark);margin-bottom:16px;">Préstamos Existentes en el Sistema</h2>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;text-align:left;">
+            <div class="admin-card" style="margin-top: 32px;">
+                <h2 class="font-display" style="font-size: 1.4rem; color: var(--neutral-dark); margin-bottom: 16px;">Préstamos Existentes en el Sistema</h2>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
                         <thead>
-                            <tr style="background:var(--neutral-light,#f8fafc);border-bottom:2px solid #e2e8f0;">
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">ID Préstamo</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Usuario</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Libro</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Fecha Salida</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Fecha Límite</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Fecha Devolución</th>
-                                <th style="padding:12px;font-weight:600;color:var(--neutral-dark);">Estado</th>
+                            <tr style="background: var(--neutral-light, #f8fafc); border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">ID Préstamo</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Usuario</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Libro</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Salida</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Límite</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Fecha Devolución</th>
+                                <th style="padding: 12px; font-weight: 600; color: var(--neutral-dark);">Estado</th>
                             </tr>
                         </thead>
                         <tbody id="prestamos-admin-tabla">
-                            <tr><td colspan="7" style="padding:16px;text-align:center;color:var(--neutral-mid);">Cargando historial transaccional...</td></tr>
+                            <tr><td colspan="7" style="padding: 16px; text-align: center; color: var(--neutral-mid);">Cargando historial transaccional...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- PANEL 3: MULTAS -->
         <section id="panel-multas" class="admin-panel" style="display:none;">
             <h1 class="font-display">Auditoría y Control de Penalidades</h1>
             <p class="panel-desc">Registro de estados de cuenta y moras financieras.</p>
@@ -117,19 +118,17 @@
             </div>
         </section>
 
-        <!-- PANEL 4: MODERACIÓN -->
         <section id="panel-moderacion" class="admin-panel" style="display:none;">
             <h1 class="font-display">Auditoría del Foro de Crítica</h1>
             <p class="panel-desc">Moderación de comentarios en la base de datos distribuida MongoDB Atlas.</p>
             <div class="admin-card">
                 <div class="search-bar">
-                    <input type="number" placeholder="Ingrese ID del Libro a evaluar..." class="admin-input" style="max-width:400px;">
+                    <input type="number" placeholder="Ingrese ID del Libro a evaluar..." class="admin-input" style="max-width: 400px;">
                     <button class="btn btn-primary">Consultar Foros</button>
                 </div>
             </div>
         </section>
 
-        <!-- PANEL 5: USUARIOS -->
         <section id="panel-usuarios" class="admin-panel" style="display:none;">
             <h1 class="font-display">Gestión de Usuarios</h1>
             <p class="panel-desc">Directorio de miembros registrados en Oracle. Actualiza membresías desde aquí.</p>
@@ -155,7 +154,6 @@
     </main>
 </div>
 
-<!-- MODAL: EDITAR MEMBRESÍA -->
 <div id="modal-membresia" class="modal-overlay" style="display:none;">
     <div class="modal-card">
         <div class="modal-header">
@@ -184,7 +182,6 @@
     </div>
 </div>
 
-<!-- MODAL: EDITAR LIBRO -->
 <div id="modal-libro" class="modal-overlay" style="display:none;">
     <div class="modal-card modal-card-wide">
         <div class="modal-header">
@@ -236,10 +233,6 @@
                     <label class="modal-label">Stock Disponible</label>
                     <input type="number" id="edit-stock-disponible" class="admin-input" placeholder="0">
                 </div>
-                <div class="form-field">
-                    <label class="modal-label">URL de Imagen</label>
-                    <input type="url" id="edit-url-imagen" class="admin-input" placeholder="https://...">
-                </div>
             </div>
             <div class="form-field" style="margin-top:16px;">
                 <label class="modal-label">Sinopsis</label>
@@ -249,6 +242,71 @@
         <div class="modal-footer">
             <button class="btn btn-ghost" onclick="cerrarModal('modal-libro')">Cancelar</button>
             <button class="btn btn-primary" onclick="confirmarEdicionLibro()">Guardar en Oracle</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-agregar-libro" class="modal-overlay" style="display:none;">
+    <div class="modal-card modal-card-wide">
+        <div class="modal-header">
+            <div class="modal-icon modal-icon-green">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div>
+                <h3 class="modal-title">Registrar Nueva Obra</h3>
+                <p class="modal-subtitle">Asignación automática de Clave Primaria en Oracle</p>
+            </div>
+        </div>
+        <div class="modal-body">
+            <form id="form-agregar-libro" onsubmit="event.preventDefault();">
+                <div class="form-grid-3">
+                    <div class="form-field">
+                        <label class="modal-label">ISBN</label>
+                        <input type="text" id="add-isbn" class="admin-input" placeholder="Ej: 978030747">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Título</label>
+                        <input type="text" id="add-titulo" class="admin-input" placeholder="Nombre del libro">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Autor</label>
+                        <input type="text" id="add-autor" class="admin-input" placeholder="Nombre del autor">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Género</label>
+                        <input type="text" id="add-genero" class="admin-input" placeholder="Ej: Drama / Novela">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Formato</label>
+                        <select id="add-formato" class="admin-select">
+                            <option value="físico">Físico</option>
+                            <option value="pdf">PDF</option>
+                            <option value="epub">EPUB</option>
+                            <option value="audiolibro">Audiolibro</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Año de publicación</label>
+                        <input type="number" id="add-anio" class="admin-input" placeholder="Ej: 2026">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Stock Total</label>
+                        <input type="number" id="add-stock-total" class="admin-input" placeholder="Cantidad inicial">
+                    </div>
+                    <div class="form-field">
+                        <label class="modal-label">Stock Disponible</label>
+                        <input type="number" id="add-stock-disponible" class="admin-input" placeholder="Cantidad disponible">
+                    </div>
+                </div>
+                <div class="form-field" style="margin-top:16px;">
+                    <label class="modal-label">Sinopsis</label>
+                    <textarea id="add-sinopsis" class="admin-input admin-textarea" placeholder="Breve descripción..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="cerrarModal('modal-agregar-libro')">Cancelar</button>
+            <button class="btn btn-primary" onclick="confirmarAgregarLibro()">Insertar en Oracle</button>
         </div>
     </div>
 </div>

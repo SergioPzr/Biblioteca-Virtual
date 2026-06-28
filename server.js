@@ -380,6 +380,65 @@ app.put('/api/oracle/libros/:id', async (req, res) => {
     }
 });
 
+
+// 📥 INSERTAR UN NUEVO LIBRO (POST)
+app.post('/api/oracle/libros', async (req, res) => {
+    let conn;
+    try {
+        const { isbn, titulo, autor, genero, formato, stock_total, stock_disponible, anio_publicacion, sinopsis } = req.body;
+        conn = await oracledb.getConnection(oracleConfig);
+
+        // Omitimos idLibro ya que se autogenera secuencialmente en Oracle
+        await conn.execute(
+            `INSERT INTO LIBRO (isbn, titulo, autor, genero, formato, stock_total, stock_disponible, anio_publicacion, sinopsis)
+             VALUES (:isbn, :titulo, :autor, :genero, :formato, :stock_total, :stock_disponible, :anio_publicacion, :sinopsis)`,
+            {
+                isbn, titulo, autor, genero, formato,
+                stock_total: parseInt(stock_total) || 0,
+                stock_disponible: parseInt(stock_disponible) || 0,
+                anio_publicacion: parseInt(anio_publicacion) || null,
+                sinopsis: sinopsis || null
+            }
+        );
+        await conn.commit();
+        res.status(201).json({ mensaje: 'Nueva obra indexada correctamente en Oracle.' });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) await conn.close();
+    }
+});
+
+// 🗑️ ELIMINAR UN LIBRO CON CONTROL DE INTEGRIDAD ACID (DELETE)
+app.delete('/api/oracle/libros/:id', async (req, res) => {
+    let conn;
+    try {
+        const idLibro = parseInt(req.params.id);
+        conn = await oracledb.getConnection(oracleConfig);
+
+        await conn.execute(
+            `DELETE FROM LIBRO WHERE idLibro = :idLibro`,
+            { idLibro }
+        );
+        await conn.commit();
+        res.json({ mensaje: 'La obra ha sido removida del inventario de Oracle con éxito.' });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error("Error al eliminar libro:", err.message);
+        
+        // Control de restricción de clave foránea (ORA-02292: integrity constraint violated - child record found)
+        if (err.message.includes("ORA-02292")) {
+            return res.status(400).json({ 
+                error: 'Restricción de Integridad: Este libro cuenta con registros de préstamos históricos activos y no puede ser eliminado.' 
+            });
+        }
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) await conn.close();
+    }
+});
+
 app.get('/', (req, res) => {
     res.redirect('/Inicio.html');
 });

@@ -78,3 +78,16 @@ body { margin: 0; background-color: var(--neutral-light); overflow: hidden; }
     from { transform: scale(0.92) translateY(12px); opacity: 0; }
     to { transform: scale(1) translateY(0); opacity: 1; }
 }
+
+/* Soporte para el grid de 3 columnas del modal de agregar */
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
