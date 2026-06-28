@@ -38,13 +38,17 @@ function switchPanel(panelId) {
     const targetPanel = document.getElementById('panel-' + panelId);
     if (targetPanel) targetPanel.style.display = 'block';
     
-    if (window.event && window.event.currentTarget) {
-        window.event.currentTarget.classList.add('active');
-    }
+    // Activar el tab correcto buscando por onclick
+    document.querySelectorAll('.nav-tab').forEach(btn => {
+        if (btn.getAttribute('onclick') === `switchPanel('${panelId}')`) {
+            btn.classList.add('active');
+        }
+    });
 
     if (panelId === 'inventario') cargarInventarioOracle();
-    if (panelId === 'prestamos') obtenerTodosLosPrestamos(); // Recarga reactiva al hacer click
+    if (panelId === 'prestamos') obtenerTodosLosPrestamos();
     if (panelId === 'multas') cargarMultasOracle();
+    if (panelId === 'usuarios') cargarUsuariosAtlas();
 }
 
 // =========================================================================
@@ -62,14 +66,24 @@ async function cargarInventarioOracle() {
 
         libros.forEach(l => {
             const badgeClass = l.STOCK_DISPONIBLE > 0 ? 'badge-green' : 'badge-red';
+            // Escapar atributos para data-* (sinopsis puede tener comillas)
+            const libroData = encodeURIComponent(JSON.stringify({
+                id: l.IDLIBRO, isbn: l.ISBN, titulo: l.TITULO, autor: l.AUTOR,
+                genero: l.GENERO, formato: l.FORMATO, stock_total: l.STOCK_TOTAL,
+                stock_disponible: l.STOCK_DISPONIBLE, anio: l.ANIO_PUBLICACION,
+                sinopsis: l.SINOPSIS || '', url_imagen: l.URL_IMAGEN || ''
+            }));
             tbody.innerHTML += `
                 <tr>
                     <td>${l.IDLIBRO}</td>
                     <td>${l.ISBN}</td>
                     <td>${l.TITULO}</td>
                     <td>${l.GENERO}</td>
-                    <td>${l.FORMATO.toUpperCase()}</td>
+                    <td>${(l.FORMATO || '').toUpperCase()}</td>
                     <td><span class="badge ${badgeClass}">${l.STOCK_DISPONIBLE} / ${l.STOCK_TOTAL}</span></td>
+                    <td>
+                        <button class="btn-edit" onclick="abrirModalLibro('${libroData}')">✏️ Editar</button>
+                    </td>
                 </tr>
             `;
         });
@@ -303,6 +317,192 @@ async function eliminarDocumentoAtlas(idMongo) {
     } catch (err) {
         alert("Error al purgar documento: " + err.message);
     }
+}
+
+// =========================================================================
+// 👤 GESTIÓN DE USUARIOS — ORACLE SQL (JOIN con MEMBRESIA)
+// =========================================================================
+
+async function cargarUsuariosAtlas() {
+    const tbody = document.getElementById('usuarios-admin-tabla');
+    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--neutral-mid);">Cargando usuarios desde Oracle...</td></tr>`;
+    try {
+        const res = await fetch('/api/oracle/usuarios');
+        if (!res.ok) {
+            const e = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+            throw new Error(e.error || `HTTP ${res.status}`);
+        }
+        const usuarios = await res.json();
+        tbody.innerHTML = '';
+        if (!usuarios || usuarios.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--neutral-mid);">No se encontraron usuarios en Oracle.</td></tr>`;
+            return;
+        }
+        const membMap = { 'mega fan':'badge-megafan','premium':'badge-premium','estudiante':'badge-estudiante','basico':'badge-basico','básico':'badge-basico' };
+        usuarios.forEach(u => {
+            const nombre  = `${u.NOMBRE||''} ${u.APELLIDO||''}`.trim()||'---';
+            const email   = u.EMAIL||'---';
+            const rol     = u.ROL||'lector';
+            const memb    = u.TIPO_PLAN||null;
+            const estado  = (u.ESTADO_CUENTA||'activo').toLowerCase();
+            const mClass  = memb ? (membMap[memb.toLowerCase()]||'badge-basico') : '';
+            const mHtml   = memb ? `<span class="badge ${mClass}">${memb}</span>` : `<span style="color:#9ca3af;font-size:0.82rem;">Sin membresía</span>`;
+            const eClass  = estado==='activo' ? 'badge-activo' : 'badge-inactivo';
+            tbody.innerHTML += `
+                <tr style="border-bottom:1px solid #e2e8f0;">
+                    <td style="padding:12px;font-weight:600;color:#1e293b;">${nombre}</td>
+                    <td style="padding:12px;color:#475569;">${email}</td>
+                    <td style="padding:12px;color:#475569;text-transform:capitalize;">${rol}</td>
+                    <td style="padding:12px;">${mHtml}</td>
+                    <td style="padding:12px;"><span class="badge ${eClass}">${estado.charAt(0).toUpperCase()+estado.slice(1)}</span></td>
+                    <td style="padding:12px;"><button class="btn-edit" onclick="abrirModalMembresia(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}','${memb||''}')">✏️ Membresía</button></td>
+                </tr>`;
+        });
+    } catch(err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:#dc2626;">⚠️ Error al cargar: ${err.message}</td></tr>`;
+    }
+}
+// ===== MODAL MEMBRESÍA =====
+function abrirModalMembresia(id, nombre, membresiaActual) {
+    document.getElementById('modal-membresia-id').value = id;
+    document.getElementById('modal-membresia-nombre').textContent = nombre;
+    const select = document.getElementById('modal-membresia-select');
+    // Seleccionar la membresía actual
+    for (let opt of select.options) {
+        opt.selected = opt.value === membresiaActual;
+    }
+    document.getElementById('modal-membresia').style.display = 'flex';
+}
+
+async function confirmarMembresia() {
+    const id        = document.getElementById('modal-membresia-id').value;
+    const membresia = document.getElementById('modal-membresia-select').value;
+
+    try {
+        const res = await fetch(`/api/oracle/usuarios/${id}/membresia`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ membresia })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            cerrarModal('modal-membresia');
+            await cargarUsuariosAtlas();
+            mostrarToast(`✅ ${data.mensaje}`);
+        } else {
+            alert(`⚠️ Error: ${data.error}`);
+        }
+    } catch (err) {
+        alert("Error de comunicación con Oracle: " + err.message);
+    }
+}
+
+// ===== MODAL LIBRO =====
+function abrirModalLibro(encodedData) {
+    const l = JSON.parse(decodeURIComponent(encodedData));
+    document.getElementById('edit-libro-id').value        = l.id;
+    document.getElementById('edit-isbn').value            = l.isbn || '';
+    document.getElementById('edit-titulo').value          = l.titulo || '';
+    document.getElementById('edit-autor').value           = l.autor || '';
+    document.getElementById('edit-genero').value          = l.genero || '';
+    document.getElementById('edit-anio').value            = l.anio || '';
+    document.getElementById('edit-stock-total').value     = l.stock_total || 0;
+    document.getElementById('edit-stock-disponible').value = l.stock_disponible || 0;
+    document.getElementById('edit-sinopsis').value        = l.sinopsis || '';
+    document.getElementById('edit-url-imagen').value      = l.url_imagen || '';
+    document.getElementById('modal-libro-titulo-ref').textContent = l.titulo || 'Obra sin título';
+
+    // Seleccionar formato
+    const fmtSelect = document.getElementById('edit-formato');
+    for (let opt of fmtSelect.options) {
+        opt.selected = opt.value === (l.formato || '').toLowerCase();
+    }
+
+    document.getElementById('modal-libro').style.display = 'flex';
+}
+
+async function confirmarEdicionLibro() {
+    const id = document.getElementById('edit-libro-id').value;
+    const payload = {
+        isbn:              document.getElementById('edit-isbn').value.trim(),
+        titulo:            document.getElementById('edit-titulo').value.trim(),
+        autor:             document.getElementById('edit-autor').value.trim(),
+        genero:            document.getElementById('edit-genero').value.trim(),
+        formato:           document.getElementById('edit-formato').value,
+        anio_publicacion:  document.getElementById('edit-anio').value,
+        stock_total:       document.getElementById('edit-stock-total').value,
+        stock_disponible:  document.getElementById('edit-stock-disponible').value,
+        sinopsis:          document.getElementById('edit-sinopsis').value.trim(),
+        url_imagen:        document.getElementById('edit-url-imagen').value.trim()
+    };
+
+    if (!payload.titulo || !payload.isbn) {
+        alert("El título y el ISBN son obligatorios.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/oracle/libros/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            cerrarModal('modal-libro');
+            await cargarInventarioOracle();
+            mostrarToast(`✅ ${data.mensaje}`);
+        } else {
+            alert(`⚠️ Error Oracle: ${data.error}`);
+        }
+    } catch (err) {
+        alert("Error de comunicación con Oracle: " + err.message);
+    }
+}
+
+// ===== UTILIDADES MODALES =====
+function cerrarModal(id) {
+    document.getElementById(id).style.display = 'none';
+}
+
+// Cerrar modal al hacer click fuera
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.style.display = 'none';
+    }
+});
+
+// Toast de confirmación
+function mostrarToast(mensaje) {
+    let toast = document.getElementById('nexus-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'nexus-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 32px; right: 32px; z-index: 2000;
+            background: var(--surface-dark); color: white;
+            padding: 14px 22px; border-radius: 12px;
+            font-family: var(--font-sans); font-size: 0.92rem; font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: translateY(20px); opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            max-width: 360px;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = mensaje;
+    requestAnimationFrame(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    });
+    setTimeout(() => {
+        toast.style.transform = 'translateY(20px)';
+        toast.style.opacity = '0';
+    }, 3500);
 }
 
 function cerrarSesion() {
