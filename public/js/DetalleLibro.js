@@ -177,13 +177,16 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    const rol = sessionStorage.getItem('nexuslib_rol');
-    if (rol) {
-        // Ya hay sesión: ir a perfil o dashboard
-        window.location.href = rol === 'admin' ? '/Dashboard.html' : '/MisPrestamos.html';
-    } else {
+    // 1. Limpiamos toda la sesión
+    sessionStorage.clear();
+    
+    // 2. Activamos la animación de salida (el telón blanco)
+    document.body.classList.add('fade-out');
+    
+    // 3. Redirigimos siempre al login
+    setTimeout(() => {
         window.location.href = '/Login.html';
-    }
+    }, 400);
 }
 
 // -------------------------------------------------------
@@ -379,9 +382,21 @@ function pickStar(val) {
     updateStarPicker(val);
 }
 
+// Añade estas dos funciones debajo de pickStar(val)
+function hoverStar(val) {
+    updateStarPicker(val);
+}
+
+function resetStar() {
+    updateStarPicker(estrellaSeleccionada);
+}
+
+// Asegúrate de que updateStarPicker se vea así:
 function updateStarPicker(val) {
     document.querySelectorAll('.star-pick').forEach(btn => {
-        btn.classList.toggle('active', parseInt(btn.dataset.val) <= val);
+        // Parseamos el dataset a entero para la comparación matemática
+        const starVal = parseInt(btn.dataset.val);
+        btn.classList.toggle('active', starVal <= val);
     });
 }
 

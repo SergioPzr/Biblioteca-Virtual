@@ -66,6 +66,15 @@ function selectRole(role) {
  *   window.location.href = data.rol === 'admin' ? '/Dashboard.html' : '/Inicio.html';
  */
 function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
+
+    // Validación obligatoria para que el botón tenga función real
+    if (!email || !pass) {
+        alert("Por favor, ingresa tu correo y contraseña para continuar.");
+        return;
+    }
+
     // === SIMULACIÓN ACTUAL ===
     sessionStorage.setItem('nexuslib_rol', selectedRole);
     sessionStorage.setItem('nexuslib_usuario', selectedRole === 'admin' ? 'Administrador' : 'Lector');

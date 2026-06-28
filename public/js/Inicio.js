@@ -21,14 +21,15 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    const rol = sessionStorage.getItem('nexuslib_rol');
+    // 1. Limpiamos toda la sesión
+    sessionStorage.clear();
+    
+    // 2. Activamos la animación de salida (el telón blanco)
     document.body.classList.add('fade-out');
+    
+    // 3. Redirigimos siempre al login
     setTimeout(() => {
-        if (rol) {
-            window.location.href = rol === 'admin' ? '/Dashboard.html' : '/MisPrestamos.html';
-        } else {
-            window.location.href = '/Login.html';
-        }
+        window.location.href = '/Login.html';
     }, 400);
 }
 

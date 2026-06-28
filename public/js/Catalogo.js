@@ -30,14 +30,17 @@ function inyectarNavRol() {
 }
 
 function goToLogin() {
-    const rol = sessionStorage.getItem('nexuslib_rol');
-    if (rol) {
-        window.location.href = rol === 'admin' ? '/Dashboard.html' : '/MisPrestamos.html';
-    } else {
+    // 1. Limpiamos toda la sesión
+    sessionStorage.clear();
+    
+    // 2. Activamos la animación de salida (el telón blanco)
+    document.body.classList.add('fade-out');
+    
+    // 3. Redirigimos siempre al login
+    setTimeout(() => {
         window.location.href = '/Login.html';
-    }
+    }, 400);
 }
-
 // Base de datos simulada
 const mockBooks = [
     { id: '1', title: 'Cien años de soledad', author: 'Gabriel García Márquez', year: 1967, stock: 5, format: ['Físico', 'PDF'], rating: 5, reviews: 1284, coverUrl: 'https://m.media-amazon.com/images/I/81MI6+TpYkL._AC_UF1000,1000_QL80_.jpg' },

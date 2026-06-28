@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin — NexusLib</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/Dashboard.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar Menú -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <img src="/images/logo.png" alt="NexusLib" class="sidebar-logo">
+                <span class="font-display text-light">NexusLib</span>
+            </div>
+            <div class="sidebar-subtitle">Módulo de Gestión</div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-tab active" onclick="switchPanel('inventario')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    Inventario (Oracle)
+                </button>
+                <button class="nav-tab" onclick="switchPanel('prestamos')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    Préstamos (ACID)
+                </button>
+                <button class="nav-tab" onclick="switchPanel('multas')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    Multas
+                </button>
+                <button class="nav-tab" onclick="switchPanel('moderacion')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Foros (MongoDB)
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="dashboard-main">
+            <!-- PANEL 1: INVENTARIO -->
+            <section id="panel-inventario" class="admin-panel active">
+                <h1 class="font-display">Inventario General de Obras</h1>
+                <p class="panel-desc">Monitoreo transaccional de libros en tiempo real a través de Oracle.</p>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>ID</th><th>ISBN</th><th>Título</th><th>Género</th><th>Formato</th><th>Stock</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1</td><td>978030747</td><td>Cien años de soledad</td><td>Novela</td><td>Físico</td><td><span class="badge badge-green">5</span></td></tr>
+                            <tr><td>2</td><td>978840124</td><td>La casa de los espíritus</td><td>Novela</td><td>PDF</td><td><span class="badge badge-red">0</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 2: PRÉSTAMOS -->
+            <section id="panel-prestamos" class="admin-panel" style="display:none;">
+                <h1 class="font-display">Salida de Material Bibliográfico</h1>
+                <p class="panel-desc">El procesamiento automático descuenta stock mediante transacciones ACID.</p>
+                
+                <div class="admin-card">
+                    <h3>Registrar Nuevo Préstamo</h3>
+                    <form class="admin-form">
+                        <div class="form-grid">
+                            <input type="number" placeholder="Código de préstamo (Ej. 911)" class="admin-input">
+                            <input type="number" placeholder="ID Usuario (Ej. 102)" class="admin-input">
+                            <input type="number" placeholder="ID Libro (Ej. 501)" class="admin-input">
+                            <input type="date" class="admin-input">
+                        </div>
+                        <button type="button" class="btn btn-primary" style="margin-top: 16px;">Confirmar Operación Relacional</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- PANEL 3: MULTAS -->
+            <section id="panel-multas" class="admin-panel" style="display:none;">
+                <h1 class="font-display">Auditoría y Control de Penalidades</h1>
+                <p class="panel-desc">Registro de estados de cuenta y moras financieras.</p>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>ID Multa</th><th>ID Préstamo</th><th>Monto Tasado</th><th>Mora (Días)</th><th>Estado</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>M-01</td><td>911</td><td>S/ 15.00</td><td>3</td><td><span class="badge badge-red">Pendiente</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 4: MODERACIÓN -->
+            <section id="panel-moderacion" class="admin-panel" style="display:none;">
+                <h1 class="font-display">Auditoría del Foro de Crítica</h1>
+                <p class="panel-desc">Moderación de comentarios en la base de datos distribuida MongoDB Atlas.</p>
+                <div class="admin-card">
+                    <div class="search-bar">
+                        <input type="number" placeholder="Ingrese ID del Libro a evaluar..." class="admin-input" style="max-width: 400px;">
+                        <button class="btn btn-primary">Consultar Foros</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/Dashboard.js"></script>
+    <script src="/js/Transitions.js"></script>
+</body>
+</html>

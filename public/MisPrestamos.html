@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Préstamos — NexusLib</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/Inicio.css"> 
+    <link rel="stylesheet" href="/css/MisPrestamos.css">
+</head>
+<body>
+    <!-- Se inyecta por JS la misma navbar del catálogo -->
+    <header class="navbar">
+        <a href="/Inicio.html" class="logo-container">
+            <img src="/images/logo.png" alt="NexusLib" class="library-logo">
+            <span class="library-name">NexusLib</span>
+        </a>
+        <nav class="nav-links">
+            <a href="/Inicio.html">Inicio</a>
+            <a href="/Catalogo.html">Catálogo</a>
+            <a href="/MisPrestamos.html" class="active">Mis préstamos</a>
+        </nav>
+        <div class="nav-actions">
+            <button class="profile-btn" aria-label="Mi Cuenta" onclick="cerrarSesion()">
+                <img src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" alt="Perfil" class="profile-icon">
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="prestamos-header">
+            <h1 class="font-display">Tus Préstamos Activos</h1>
+            <p>Gestiona tus lecturas y verifica tus fechas de devolución.</p>
+        </section>
+
+        <section class="prestamos-container">
+            <!-- Plantilla de préstamo (Mock Data) -->
+            <article class="prestamo-card">
+                <span class="prestamo-estado estado-activo">En tu poder</span>
+                <h3 class="prestamo-titulo">Cien años de soledad</h3>
+                <p style="font-size: 0.9rem; color: var(--neutral-mid);">Formato: Físico</p>
+                <div class="prestamo-fechas">
+                    <div class="fecha-item">
+                        <span>Retirado el</span>
+                        <strong>12 Ago 2024</strong>
+                    </div>
+                    <div class="fecha-item limite" style="text-align: right;">
+                        <span>Devolución</span>
+                        <strong>26 Ago 2024</strong>
+                    </div>
+                </div>
+            </article>
+
+             <article class="prestamo-card">
+                <span class="prestamo-estado estado-activo">En tu poder</span>
+                <h3 class="prestamo-titulo">Ficciones</h3>
+                <p style="font-size: 0.9rem; color: var(--neutral-mid);">Formato: Físico</p>
+                <div class="prestamo-fechas">
+                    <div class="fecha-item">
+                        <span>Retirado el</span>
+                        <strong>15 Ago 2024</strong>
+                    </div>
+                    <div class="fecha-item" style="text-align: right;">
+                        <span>Devolución</span>
+                        <strong>29 Ago 2024</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script src="/js/Transitions.js"></script>
+    <script src="/js/MisPrestamos.js"></script>
+</body>
+</html>

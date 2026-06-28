@@ -130,11 +130,11 @@
                         <h3 class="font-display">Tu opinión</h3>
                         <div class="star-picker" id="star-picker">
                             <!-- 5 estrellas interactivas -->
-                            <button class="star-pick" data-val="1" onclick="pickStar(1)">★</button>
-                            <button class="star-pick" data-val="2" onclick="pickStar(2)">★</button>
-                            <button class="star-pick" data-val="3" onclick="pickStar(3)">★</button>
-                            <button class="star-pick" data-val="4" onclick="pickStar(4)">★</button>
-                            <button class="star-pick" data-val="5" onclick="pickStar(5)">★</button>
+                            <button class="star-pick" data-val="1" onclick="pickStar(1)" onmouseover="hoverStar(1)" onmouseout="resetStar()">★</button>
+                            <button class="star-pick" data-val="2" onclick="pickStar(2)" onmouseover="hoverStar(2)" onmouseout="resetStar()">★</button>
+                            <button class="star-pick" data-val="3" onclick="pickStar(3)" onmouseover="hoverStar(3)" onmouseout="resetStar()">★</button>
+                            <button class="star-pick" data-val="4" onclick="pickStar(4)" onmouseover="hoverStar(4)" onmouseout="resetStar()">★</button>
+                            <button class="star-pick" data-val="5" onclick="pickStar(5)" onmouseover="hoverStar(5)" onmouseout="resetStar()">★</button>
                         </div>
                         <input type="text" class="resena-input" id="resena-nombre" placeholder="Tu nombre">
                         <textarea class="resena-textarea" id="resena-comentario" placeholder="Escribe tu comentario..." rows="4"></textarea>
