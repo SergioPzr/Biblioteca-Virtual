@@ -377,6 +377,27 @@ app.get('/api/oracle/usuarios', async (req, res) => {
     }
 });
 
+
+// DELETE: Eliminar usuario de Oracle
+app.delete('/api/oracle/usuarios/:id', async (req, res) => {
+    let conn;
+    try {
+        const idUsuario = parseInt(req.params.id);
+        conn = await oracledb.getConnection(oracleConfig);
+        await conn.execute(
+            `DELETE FROM USUARIO WHERE idUsuario = :idUsuario`,
+            { idUsuario },
+            { autoCommit: true }
+        );
+        res.json({ mensaje: `Usuario #${idUsuario} eliminado correctamente.` });
+    } catch (err) {
+        console.error('Error DELETE /api/oracle/usuarios/:id:', err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) try { await conn.close(); } catch(e) {}
+    }
+});
+
 // PUT: Actualizar membresía de un usuario (UPDATE en tabla MEMBRESIA)
 app.put('/api/oracle/usuarios/:id/membresia', async (req, res) => {
     let conn;

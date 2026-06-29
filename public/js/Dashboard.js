@@ -390,7 +390,7 @@ async function consultarForoMongo() {
                         <td style="font-size:0.9rem; max-width:400px; white-space:normal;">"${r.comentario}"</td>
                         <td>
                             <button onclick="eliminarDocumentoAtlas('${r._id}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">
-                                Purgar Documento
+                                Eliminar Reseña
                             </button>
                         </td>
                     </tr>`;
@@ -465,7 +465,7 @@ async function cargarUsuariosAtlas() {
                     <td style="padding:12px;color:#475569;text-transform:capitalize;">${rol}</td>
                     <td style="padding:12px;">${mHtml}</td>
                     <td style="padding:12px;"><span class="badge ${eClass}">${estado.charAt(0).toUpperCase()+estado.slice(1)}</span></td>
-                    <td style="padding:12px;"><button class="btn-edit" onclick="abrirModalMembresia(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}','${memb||''}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>
+                    <td style="padding:12px;display:flex;gap:8px;align-items:center;"><button class="btn-edit" onclick="abrirModalMembresia(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}','${memb||''}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button style="padding:6px 10px;background:rgba(239,68,68,0.1);color:#dc2626;border:none;border-radius:6px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'" onclick="eliminarUsuario(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></td>
                 </tr>`;
         });
     } catch(err) {
@@ -615,6 +615,22 @@ function cerrarSesion() {
     document.body.classList.add('fade-out');
     setTimeout(() => { window.location.href = '/Login.html'; }, 400);
 }
+async function eliminarUsuario(idUsuario, nombre) {
+    if (!await confirmarAccion(`¿Eliminar permanentemente al usuario <strong style="color:#0f172a;">${nombre}</strong>? Esta acción no se puede deshacer.`)) return;
+    try {
+        const res = await fetch(`/api/oracle/usuarios/${idUsuario}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            mostrarToast(`🗑️ ${data.mensaje}`);
+            await cargarUsuariosAtlas();
+        } else {
+            mostrarToast('❌ ' + (data.error || 'Error al eliminar usuario'));
+        }
+    } catch (err) {
+        mostrarToast('❌ Error de red: ' + err.message);
+    }
+}
+
 // =========================================================
 // MODAL DE CONFIRMACIÓN — reemplaza confirm() nativo
 // Uso: if (!await confirmarAccion('mensaje')) return;
