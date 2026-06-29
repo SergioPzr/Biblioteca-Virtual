@@ -73,8 +73,8 @@
                 <h3>Registrar Nuevo Préstamo</h3>
                 <form class="admin-form">
                     <div class="form-grid">
-                        <input type="number" placeholder="ID Usuario" class="admin-input" id="prestamo-usuario-id">
-                        <input type="number" placeholder="ID Libro" class="admin-input" id="prestamo-libro-id">
+                        <input type="number" placeholder="ID Usuario" class="admin-input" id="prestamo-usuario-id" min="1">
+                        <input type="number" placeholder="ID Libro" class="admin-input" id="prestamo-libro-id" min="1">
                         <input type="date" class="admin-input" id="prestamo-fecha">
                     </div>
                     <button type="button" class="btn btn-primary" style="margin-top: 16px;">Confirmar</button>
@@ -124,7 +124,7 @@
             <p class="panel-desc">Moderación de comentarios en la base de datos distribuida MongoDB Atlas.</p>
             <div class="admin-card">
                 <div class="search-bar">
-                    <input type="number" placeholder="Ingrese ID del Libro a evaluar..." class="admin-input" style="max-width: 400px;">
+                    <input type="number" placeholder="Ingrese ID del Libro a evaluar..." class="admin-input" style="max-width: 400px;" min="1">
                     <button class="btn btn-primary">Consultar Foros</button>
                 </div>
             </div>

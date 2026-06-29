@@ -25,6 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         btnConsultarMongo.type = 'button';
         btnConsultarMongo.onclick = consultarForoMongo;
     }
+    // Validar que ningún input de tipo "number" acepte el signo menos al tipear
+    const inputsNumericos = document.querySelectorAll('input[type="number"]');
+    inputsNumericos.forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            // Bloquear el carácter '-' (código 45) y 'e'/'E' (notación científica)
+            if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+            }
+        });
+});
 });
 
 function switchPanel(panelId) {
