@@ -117,3 +117,58 @@
 .fecha-item.limite strong {
     color: #dc2626; /* Rojo alerta */
 }
+/* =========================================
+   PORTADA EN TARJETA
+========================================= */
+.prestamo-card {
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start;
+}
+
+.prestamo-portada-wrapper {
+    flex-shrink: 0;
+    width: 90px;
+    aspect-ratio: 2/3;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.prestamo-portada {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.prestamo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.prestamo-formato {
+    font-size: 0.88rem;
+    color: var(--neutral-mid);
+    margin: 0;
+}
+
+/* Estado urgente (vence pronto) */
+.estado-urgente {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 99px;
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

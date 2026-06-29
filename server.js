@@ -59,6 +59,7 @@ app.post('/api/auth/login', async (req, res) => {
 
         res.json({
             mensaje: 'Autenticación exitosa',
+            idUsuario: usuario.IDUSUARIO,
             nombre: usuario.NOMBRE,
             apellido: usuario.APELLIDO,
             rol: rolFrontend
@@ -71,6 +72,7 @@ app.post('/api/auth/login', async (req, res) => {
         if (conn) { try { await conn.close(); } catch (e) { console.error(e); } }
     }
 });
+
 // POST: Registro de nuevo usuario (rol Lector por defecto)
 app.post('/api/auth/registro', async (req, res) => {
     let conn;
@@ -83,7 +85,7 @@ app.post('/api/auth/registro', async (req, res) => {
 
         conn = await oracledb.getConnection(oracleConfig);
 
-        // Verificar que el email no esté ya registrado
+        // 1. Verificar que el email no esté ya registrado
         const check = await conn.execute(
             `SELECT idUsuario FROM USUARIO WHERE email = :email`,
             { email },
@@ -94,17 +96,22 @@ app.post('/api/auth/registro', async (req, res) => {
             return res.status(409).json({ error: 'Ya existe una cuenta con ese correo electrónico.' });
         }
 
-        // Insertar nuevo usuario con rol Lector y cuenta activa
-        // El nombre completo va en "nombre"; apellido queda vacío por ahora
-        // (el formulario actual solo pide nombre completo)
+        // 2. Separar "Nombre Completo" en Nombre y Apellido para cumplir con el NOT NULL de Oracle
+        const partesNombre = nombre.trim().split(' ');
+        const nombreFinal = partesNombre[0]; // Toma la primera palabra como nombre
+        
+        // Si escribió más de una palabra, las junta como apellido. Si no, pone un guion para evitar el error de Oracle.
+        const apellidoFinal = partesNombre.length > 1 ? partesNombre.slice(1).join(' ') : '-';
+
+        // 3. Insertar nuevo usuario con rol 'Lector' por defecto
         await conn.execute(
             `INSERT INTO USUARIO (nombre, apellido, email, contrasenia_cifrada, rol, estado_cuenta)
              VALUES (:nombre, :apellido, :email, :password, 'Lector', 'activo')`,
             {
-                nombre:   nombre,
-                apellido: '',       // el formulario no pide apellido por separado
+                nombre:   nombreFinal,
+                apellido: apellidoFinal,
                 email:    email,
-                password: password  // en texto plano igual que el resto de la tabla
+                password: password  
             }
         );
 
@@ -518,6 +525,41 @@ app.delete('/api/oracle/libros/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     } finally {
         if (conn) await conn.close();
+    }
+});
+
+// GET: Préstamos activos del usuario autenticado (por email)
+app.get('/api/oracle/prestamos/mis', async (req, res) => {
+    let conn;
+    try {
+        const email = req.query.email;
+        if (!email) return res.status(400).json({ error: 'Email requerido.' });
+
+        conn = await oracledb.getConnection(oracleConfig);
+        const result = await conn.execute(
+            `SELECT 
+                p.idPrestamo      AS IDPRESTAMO,
+                l.idLibro         AS IDLIBRO,
+                l.titulo          AS TITULO_LIBRO,
+                l.formato         AS FORMATO,
+                p.fecha_prestamo  AS FECHASALIDA,
+                p.fecha_limite    AS FECHALIMITE,
+                p.estado          AS ESTADO
+             FROM PRESTAMO p
+             JOIN USUARIO u ON p.idUsuario = u.idUsuario
+             JOIN LIBRO   l ON p.idLibro   = l.idLibro
+             WHERE u.email = :email
+               AND LOWER(p.estado) = 'activo'
+             ORDER BY p.fecha_limite ASC`,
+            { email },
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error GET /api/oracle/prestamos/mis:', err);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) { try { await conn.close(); } catch(e) {} }
     }
 });
 

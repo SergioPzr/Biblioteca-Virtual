@@ -33,42 +33,12 @@
             <p>Gestiona tus lecturas y verifica tus fechas de devolución.</p>
         </section>
 
-        <section class="prestamos-container">
-            <!-- Plantilla de préstamo (Mock Data) -->
-            <article class="prestamo-card">
-                <span class="prestamo-estado estado-activo">En tu poder</span>
-                <h3 class="prestamo-titulo">Cien años de soledad</h3>
-                <p style="font-size: 0.9rem; color: var(--neutral-mid);">Formato: Físico</p>
-                <div class="prestamo-fechas">
-                    <div class="fecha-item">
-                        <span>Retirado el</span>
-                        <strong>12 Ago 2024</strong>
-                    </div>
-                    <div class="fecha-item limite" style="text-align: right;">
-                        <span>Devolución</span>
-                        <strong>26 Ago 2024</strong>
-                    </div>
-                </div>
-            </article>
-
-             <article class="prestamo-card">
-                <span class="prestamo-estado estado-activo">En tu poder</span>
-                <h3 class="prestamo-titulo">Ficciones</h3>
-                <p style="font-size: 0.9rem; color: var(--neutral-mid);">Formato: Físico</p>
-                <div class="prestamo-fechas">
-                    <div class="fecha-item">
-                        <span>Retirado el</span>
-                        <strong>15 Ago 2024</strong>
-                    </div>
-                    <div class="fecha-item" style="text-align: right;">
-                        <span>Devolución</span>
-                        <strong>29 Ago 2024</strong>
-                    </div>
-                </div>
-            </article>
+        <section class="prestamos-container" id="prestamos-container">
+            <!-- Inyectado por MisPrestamos.js desde Oracle -->
         </section>
     </main>
 
+    <script src="/js/imagenesLibros.js"></script>
     <script src="/js/Transitions.js"></script>
     <script src="/js/MisPrestamos.js"></script>
 </body>

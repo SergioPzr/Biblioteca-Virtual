@@ -105,7 +105,7 @@ async function cargarInventarioOracle() {
 }
 
 async function eliminarLibroOracle(id, titulo) {
-    if (!confirm(`¿Está seguro de que desea remover permanentemente la obra '${titulo}' de Oracle?`)) return;
+    if (!await confirmarAccion(`¿Deseas remover permanentemente la obra '${titulo}' de Oracle? Esta acción no se puede deshacer.`)) return;
 
     try {
         const res = await fetch(`/api/oracle/libros/${id}`, { method: 'DELETE' });
@@ -115,10 +115,10 @@ async function eliminarLibroOracle(id, titulo) {
             mostrarToast(`🗑️ ${data.mensaje}`);
             await cargarInventarioOracle();
         } else {
-            alert(`⚠️ Error Relacional:\n${data.error}`);
+            mostrarToast('❌ Error Relacional: ' + data.error);
         }
     } catch (err) {
-        alert("Fallo de comunicación con la base de datos: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -140,7 +140,7 @@ async function confirmarAgregarLibro() {
     const sinopVal  = document.getElementById('add-sinopsis').value.trim();
 
     if (!tituloVal || !isbnVal) {
-        alert("⚠️ El Título y el ISBN son campos relacionales obligatorios.");
+        mostrarToast("⚠️ El Título y el ISBN son campos relacionales obligatorios.");
         return;
     }
 
@@ -178,10 +178,10 @@ async function confirmarAgregarLibro() {
             await cargarInventarioOracle();
             mostrarToast(`✅ ${data.mensaje}`);
         } else {
-            alert(`⚠️ Error devuelto por Oracle:\n${data.error}`);
+            mostrarToast(`⚠️ Error devuelto por Oracle:`);
         }
     } catch (err) {
-        alert("Error de infraestructura al enviar datos a Oracle: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -231,7 +231,7 @@ async function registrarPrestamoAdmin() {
     const fechaLimite = document.getElementById('prestamo-fecha').value.trim();
 
     if (!idUsuario || !idLibro || !fechaLimite) {
-        alert("Por favor, complete todos los campos obligatorios para procesar el préstamo.");
+        mostrarToast("Por favor, complete todos los campos obligatorios para procesar el préstamo.");
         return;
     }
 
@@ -248,16 +248,16 @@ async function registrarPrestamoAdmin() {
         const data = await res.json();
 
         if (res.ok) {
-            alert(`🎉 ¡Éxito Relacional!\nPréstamo registrado correctamente.`);
+            mostrarToast(`✅ ¡Éxito Relacional!`);
             document.getElementById('prestamo-usuario-id').value = '';
             document.getElementById('prestamo-libro-id').value = '';
             document.getElementById('prestamo-fecha').value = '';
             obtenerTodosLosPrestamos();
         } else {
-            alert(`⚠️ Error en las Reglas de Negocio:\n${data.error}`);
+            mostrarToast(`⚠️ Error en las Reglas de Negocio:`);
         }
     } catch (err) {
-        alert("Error de comunicación con el servidor Oracle: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -329,7 +329,7 @@ function renderizarTablaPrestamos(listaPrestamos) {
 
 // Functión para eliminar préstamo y limpiar dependencias
 async function eliminarPrestamoOracle(idPrestamo) {
-    if (!confirm(`⚠️ ¿Está seguro de eliminar permanentemente el préstamo N° ${idPrestamo}?\nEsta acción removerá la restricción en Oracle.`)) return;
+    if (!await confirmarAccion(`¿Eliminar permanentemente el préstamo N° ${idPrestamo}? Esta acción removerá la restricción en Oracle.`)) return;
 
     try {
         const res = await fetch(`/api/oracle/prestamos/${idPrestamo}`, { method: 'DELETE' });
@@ -341,10 +341,10 @@ async function eliminarPrestamoOracle(idPrestamo) {
             await obtenerTodosLosPrestamos();
             await cargarInventarioOracle();
         } else {
-            alert(`⚠️ Error al remover el préstamo:\n${data.error}`);
+            mostrarToast('❌ Error al remover el préstamo: ' + data.error);
         }
     } catch (err) {
-        alert("Fallo de comunicación asíncrona: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -357,7 +357,7 @@ async function consultarForoMongo() {
     const idLibro = input ? input.value.trim() : '';
 
     if (!idLibro) {
-        alert("Por favor, ingrese un ID de libro válido para auditar.");
+        mostrarToast("Por favor, ingrese un ID de libro válido para auditar.");
         return;
     }
 
@@ -400,19 +400,19 @@ async function consultarForoMongo() {
         }
         document.getElementById('panel-moderacion').appendChild(resultadoCard);
     } catch (err) {
-        alert("Fallo al auditar foros en Atlas: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
 async function eliminarDocumentoAtlas(idMongo) {
-    if (!confirm("¿Desea purgar este documento de forma permanente del clúster distribuido?")) return;
+    if (!await confirmarAccion("¿Purgar este documento de forma permanente del clúster distribuido de MongoDB?")) return;
     try {
         const res = await fetch(`/api/mongo/resenas/${idMongo}`, { method: 'DELETE' });
         const data = await res.json();
-        alert(data.mensaje);
+        mostrarToast('🗑️ ' + data.mensaje);
         consultarForoMongo();
     } catch (err) {
-        alert("Error al purgar documento: " + err.message);
+        mostrarToast('❌ Error al purgar: ' + err.message);
     }
 }
 
@@ -465,7 +465,7 @@ async function cargarUsuariosAtlas() {
                     <td style="padding:12px;color:#475569;text-transform:capitalize;">${rol}</td>
                     <td style="padding:12px;">${mHtml}</td>
                     <td style="padding:12px;"><span class="badge ${eClass}">${estado.charAt(0).toUpperCase()+estado.slice(1)}</span></td>
-                    <td style="padding:12px;"><button class="btn-edit" onclick="abrirModalMembresia(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}','${memb||''}')">✏️ Membresía</button></td>
+                    <td style="padding:12px;"><button class="btn-edit" onclick="abrirModalMembresia(${u.IDUSUARIO},'${nombre.replace(/'/g,"&apos;")}','${memb||''}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>
                 </tr>`;
         });
     } catch(err) {
@@ -499,10 +499,10 @@ async function confirmarMembresia() {
             await cargarUsuariosAtlas();
             mostrarToast(`✅ ${data.mensaje}`);
         } else {
-            alert(`⚠️ Error: ${data.error}`);
+            mostrarToast(`⚠️ Error: ${data.error}`);
         }
     } catch (err) {
-        alert("Error de comunicación con Oracle: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -545,7 +545,7 @@ async function confirmarEdicionLibro() {
     };
 
     if (!payload.titulo || !payload.isbn) {
-        alert("El título y el ISBN son obligatorios.");
+        mostrarToast("El título y el ISBN son obligatorios.");
         return;
     }
 
@@ -565,10 +565,10 @@ async function confirmarEdicionLibro() {
             await cargarInventarioOracle();
             mostrarToast(`✅ ${data.mensaje}`);
         } else {
-            alert(`⚠️ Error Oracle: ${data.error}`);
+            mostrarToast(`⚠️ Error Oracle: ${data.error}`);
         }
     } catch (err) {
-        alert("Error de comunicación con Oracle: " + err.message);
+        mostrarToast("❌ " + err.message);
     }
 }
 
@@ -614,4 +614,33 @@ function cerrarSesion() {
     sessionStorage.clear();
     document.body.classList.add('fade-out');
     setTimeout(() => { window.location.href = '/Login.html'; }, 400);
+}
+// =========================================================
+// MODAL DE CONFIRMACIÓN — reemplaza confirm() nativo
+// Uso: if (!await confirmarAccion('mensaje')) return;
+// =========================================================
+function confirmarAccion(mensaje) {
+    return new Promise((resolve) => {
+        let overlay = document.getElementById('confirm-overlay');
+        if (overlay) overlay.remove();
+
+        overlay = document.createElement('div');
+        overlay.id = 'confirm-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(15,23,42,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+            <div style="background:white;border-radius:20px;padding:32px;max-width:420px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);">
+                <div style="width:52px;height:52px;border-radius:14px;background:rgba(239,68,68,0.1);color:#dc2626;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.4rem;">⚠️</div>
+                <p style="font-family:'Playfair Display',serif;font-size:1.1rem;color:#0f172a;margin-bottom:8px;font-weight:600;">¿Confirmar acción?</p>
+                <p style="font-size:0.9rem;color:#64748b;margin-bottom:28px;line-height:1.5;">${mensaje}</p>
+                <div style="display:flex;gap:12px;justify-content:center;">
+                    <button id="confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1.5px solid #e5e7eb;background:white;font-family:Inter,sans-serif;font-size:0.9rem;font-weight:600;color:#64748b;cursor:pointer;">Cancelar</button>
+                    <button id="confirm-ok" style="padding:10px 24px;border-radius:8px;border:none;background:#dc2626;font-family:Inter,sans-serif;font-size:0.9rem;font-weight:600;color:white;cursor:pointer;box-shadow:0 4px 12px rgba(220,38,38,0.3);">Eliminar</button>
+                </div>
+            </div>
+        `;
+        document.documentElement.appendChild(overlay);
+        document.getElementById('confirm-cancel').onclick = () => { overlay.remove(); resolve(false); };
+        document.getElementById('confirm-ok').onclick    = () => { overlay.remove(); resolve(true); };
+        overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } };
+    });
 }

@@ -48,7 +48,7 @@ async function handleLogin() {
     const pass  = document.getElementById('login-pass').value.trim();
 
     if (!email || !pass) {
-        alert('Por favor ingresa tu correo y contraseña para continuar.');
+        mostrarToast('⚠️ Por favor ingresa tu correo y contraseña para continuar.');
         return;
     }
 
@@ -62,7 +62,7 @@ async function handleLogin() {
         const data = await res.json();
 
         if (!res.ok) {
-            alert('❌ ' + data.error);
+            mostrarToast('❌ ' + data.error);
             return;
         }
 
@@ -71,6 +71,7 @@ async function handleLogin() {
         sessionStorage.setItem('nexuslib_usuario',  data.nombre);
         sessionStorage.setItem('nexuslib_apellido', data.apellido || '');
         sessionStorage.setItem('nexuslib_email',    email);
+        sessionStorage.setItem('nexuslib_id',       data.idUsuario);
 
         document.body.classList.add('fade-out');
         setTimeout(() => {
@@ -78,7 +79,7 @@ async function handleLogin() {
         }, 400);
 
     } catch (err) {
-        alert('Error de red al conectar con el servidor: ' + err.message);
+        mostrarToast('❌ Error de red: ' + err.message);
     }
 }
 
@@ -89,7 +90,7 @@ async function handleRegister() {
     const password = document.getElementById('reg-pass').value.trim();
 
     if (!nombre || !email || !password) {
-        alert('Por favor completa todos los campos para registrarte.');
+        mostrarToast('⚠️ Por favor completa todos los campos para registrarte.');
         return;
     }
 
@@ -103,15 +104,15 @@ async function handleRegister() {
         const data = await res.json();
 
         if (!res.ok) {
-            alert('❌ ' + data.error);
+            mostrarToast('❌ ' + data.error);
             return;
         }
 
-        alert(`✅ Cuenta creada exitosamente. ¡Bienvenido, ${nombre}!\nYa puedes iniciar sesión.`);
+        mostrarToast(`✅ ¡Bienvenido, ${nombre}! Ya puedes iniciar sesión.`);
         switchTab('login');
 
     } catch (err) {
-        alert('Error de red al conectar con el servidor: ' + err.message);
+        mostrarToast('❌ Error de red: ' + err.message);
     }
 }
 
@@ -121,3 +122,36 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-email')?.addEventListener('keydown', onEnter);
     document.getElementById('login-pass')?.addEventListener('keydown', onEnter);
 });
+
+function mostrarToast(mensaje) {
+    let toast = document.getElementById('nexus-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'nexus-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '32px';
+        toast.style.right = '32px';
+        toast.style.zIndex = '99999';
+        toast.style.background = '#1e293b';
+        toast.style.color = 'white';
+        toast.style.padding = '14px 22px';
+        toast.style.borderRadius = '12px';
+        toast.style.fontFamily = 'Inter, sans-serif';
+        toast.style.fontSize = '0.92rem';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.maxWidth = '360px';
+        document.documentElement.appendChild(toast);
+    }
+    toast.textContent = mensaje;
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+        });
+    });
+    setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 3500);
+}

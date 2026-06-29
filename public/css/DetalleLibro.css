@@ -572,3 +572,12 @@ a { text-decoration: none; color: inherit; }
     .footer-top { grid-template-columns: 1fr; }
     .rating-summary { flex-direction: column; align-items: flex-start; gap: 20px; }
 }
+/* =========================================
+   TOAST DE NOTIFICACIONES
+========================================= */
+#nexus-toast {
+    position: fixed !important;
+    bottom: 32px !important;
+    right: 32px !important;
+    z-index: 9999 !important;
+}

@@ -195,7 +195,7 @@ async function enviarResena() {
     const comentario = document.getElementById('resena-comentario').value.trim();
 
     if (!nombre || !comentario || estrellaSeleccionada === 0) {
-        alert('Completa todos los campos y selecciona una puntuación.');
+        mostrarToast('⚠️ Completa todos los campos y selecciona una puntuación.');
         return;
     }
 
@@ -215,10 +215,10 @@ async function enviarResena() {
             toggleFormResena();
             await cargarDetallesHibridos(idLibroActual);
         } else {
-            alert('Error en el almacenamiento de Atlas.');
+            mostrarToast('❌ Error en el almacenamiento de Atlas.');
         }
     } catch (err) {
-        alert('Fallo de communication: ' + err.message);
+        mostrarToast('❌ Fallo de comunicación: ' + err.message);
     }
 }
 
@@ -236,11 +236,12 @@ async function solicitarPrestamo() {
     const fechaLimiteStr = hoy.toISOString().split('T')[0];
 
     try {
+        const idUsuario = sessionStorage.getItem('nexuslib_id');
         const res = await fetch('/api/oracle/prestamos', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                idUsuario: 3, 
+                idUsuario: idUsuario,
                 idLibro: idLibroActual,
                 fechaLimite: fechaLimiteStr
             })
@@ -248,12 +249,44 @@ async function solicitarPrestamo() {
         const data = await res.json();
 
         if (res.ok) {
-            alert(`🎉 ¡Éxito Relacional!\n${data.mensaje}\nTienes hasta el ${fechaLimiteStr} para devolverlo.`);
+            mostrarToast(`✅ ${data.mensaje} — Devolver antes del ${fechaLimiteStr}`);
             await cargarDetallesHibridos(idLibroActual);
         } else {
-            alert('Fallo en la regla de negocio: ' + data.error);
+            mostrarToast('❌ ' + data.error);
         }
     } catch (err) {
-        alert('Error transaccional en Oracle: ' + err.message);
+        mostrarToast('❌ Error transaccional: ' + err.message);
     }
+}
+function mostrarToast(mensaje) {
+    let toast = document.getElementById('nexus-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'nexus-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '32px';
+        toast.style.right = '32px';
+        toast.style.zIndex = '99999';
+        toast.style.background = '#1e293b';
+        toast.style.color = 'white';
+        toast.style.padding = '14px 22px';
+        toast.style.borderRadius = '12px';
+        toast.style.fontFamily = 'Inter, sans-serif';
+        toast.style.fontSize = '0.92rem';
+        toast.style.fontWeight = '500';
+        toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.maxWidth = '360px';
+        document.documentElement.appendChild(toast);
+    }
+    toast.textContent = mensaje;
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+        });
+    });
+    setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 3500);
 }
