@@ -1,0 +1,777 @@
+/* =========================================
+   TRANSICIÓN GLOBAL DE PÁGINAS
+========================================= */
+body {
+    opacity: 0;
+    /* Al cargar la página, hace un desvanecimiento suave y sube ligeramente */
+    animation: pageFadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+body.fade-out {
+    /* Al salir de la página, se desvanece y sube un poco más */
+    animation: pageFadeOut 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(12px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes pageFadeOut {
+    from { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(-12px); 
+    }
+}
+/* --- Variables y Reset --- */
+:root {
+    --surface-dark: #012a1a;
+    --stats-bg: #017a4d;
+    --primary: #01ae6b;
+    --primary-dark: #018a55;
+    --primary-light: #6ce9b4; /* Equivalente visual al oklch del código */
+    --neutral-dark: #111827;
+    --neutral-mid: #374151;
+    --neutral-light: #f0fdf4;
+    --amber: #f59e0b;
+    
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    
+    --shadow-green: 0 8px 24px rgba(1, 174, 107, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border-color: #e5e7eb;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: var(--neutral-mid);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+
+.font-display {
+    font-family: var(--font-serif);
+}
+
+.text-primary { color: var(--primary); }
+
+/* --- Botones --- */
+/* --- Botones --- */
+.btn {
+    padding: 0 24px;
+    height: 48px;
+    border-radius: 9999px; /* rounded-full */
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    /* Cambiamos a cubic-bezier para que la animación de escala sea más natural y suave */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Resto de estilos del btn-primary... */
+.btn-primary {
+    background-color: var(--primary);
+    color: #ffffff;
+    box-shadow: var(--shadow-green);
+}
+
+/* Efecto Hover para el Botón Principal */
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: scale(1.05); /* Agrandamiento del 5% */
+    box-shadow: 0 12px 28px rgba(1, 174, 107, 0.5); /* Sombra más amplia para simular elevación */
+}
+
+/* Resto de estilos del btn-outline-hero... */
+.btn-outline-hero {
+    background-color: transparent;
+    border: 1px solid var(--primary);
+    color: #ffffff;
+}
+
+/* Efecto Hover para el Botón Secundario */
+.btn-outline-hero:hover {
+    background-color: rgba(1, 174, 107, 0.15);
+    transform: scale(1.05); /* Agrandamiento del 5% */
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.80); /* Ligeramente más transparente */
+    backdrop-filter: blur(30px); 
+    -webkit-backdrop-filter: blur(30px); 
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 5%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+    
+    /* Cambios clave: fixed y width 100% para que superponga al Hero inmediatamente */
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+}
+
+/* --- Logo de la Librería --- */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Separación entre el logo y el texto */
+    cursor: pointer;
+}
+
+.library-logo {
+    max-height: 48px; /* Aumentamos el tamaño de 40px a 48px para que resalte */
+    width: auto;
+    object-fit: contain;
+    
+    /* Preparamos una transición con un efecto de rebote suave */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.library-name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--surface-dark);
+    letter-spacing: -0.02em;
+    transition: color 0.3s ease;
+}
+
+/* --- Animación Hover --- */
+.logo-container:hover .library-logo {
+    /* Al pasar el cursor: el logo crece un 10% y se inclina ligeramente */
+    transform: scale(1.1) rotate(-5deg); 
+}
+
+.logo-container:hover .library-name {
+    /* El texto cambia al verde principal para hacer juego */
+    color: var(--primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-links a {
+    color: var(--neutral-mid);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+/* Efecto Hover animado para los enlaces */
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.nav-links a:hover, 
+.nav-links a.active {
+    color: var(--primary-dark);
+}
+
+.nav-links a:hover::after, 
+.nav-links a.active::after {
+    width: 100%; /* La línea crece al hacer hover */
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+}
+
+.profile-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;  /* Ancho fijo para mantener el círculo perfecto */
+    height: 44px; /* Alto fijo */
+    border-radius: 50%;
+    /* Quitamos el hover de background anterior para que destaque el resplandor */
+    background-color: transparent; 
+}
+
+.profile-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* Borde verde del grosor deseado */
+    border: 2px solid var(--primary); 
+    /* Hacemos un lado transparente para crear el efecto "semi cerrado" */
+    border-top-color: transparent; 
+    
+    /* Transición suave para el giro y el resplandor */
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.profile-btn:hover::before {
+    transform: rotate(360deg);
+    box-shadow: 0 0 12px rgba(1, 174, 107, 0.5), inset 0 0 6px rgba(1, 174, 107, 0.2);
+}
+
+.profile-icon {
+    width: 22px;  /* Ícono más pequeño como solicitaste */
+    height: 22px;
+    position: relative;
+    z-index: 2;   /* Asegura que el ícono esté por encima del fondo */
+    
+    /* Mantiene el color oscuro adaptado a la UI */
+    filter: brightness(0) saturate(100%) invert(8%) sepia(43%) saturate(1637%) hue-rotate(130deg) brightness(93%) contrast(97%); 
+    transition: transform 0.3s ease;
+}
+
+.profile-btn:hover .profile-icon {
+    transform: scale(1.05);
+}
+
+/* --- Hero Section --- */
+.hero {
+    position: relative;
+    background-color: var(--surface-dark);
+    
+    /* Nuevo patrón: Malla de micropuntos sutiles (Evoca textura de encuadernación y datos digitales) */
+    background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    
+    color: #ffffff;
+    text-align: center;
+    
+    /* Aumentamos el padding-top (de 96px a 160px) para que la navbar flotante no tape el título */
+    padding: 160px 5% 128px;
+    overflow: hidden;
+}
+
+.hero-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(900px 500px at 70% 20%, rgba(1,174,107,0.18), transparent 60%), 
+                radial-gradient(700px 400px at 20% 80%, rgba(0,201,126,0.12), transparent 60%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.badge {
+    border: 1px solid rgba(1, 174, 107, 0.4);
+    background-color: rgba(1, 174, 107, 0.1);
+    color: var(--primary-light);
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hero h1 {
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+}
+
+.hero .italic-serif {
+    color: var(--primary-light);
+    font-style: italic;
+    font-weight: 500;
+}
+
+.hero p {
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 672px;
+    margin-bottom: 40px;
+    font-size: 1.125rem;
+    font-weight: 300;
+    line-height: 1.625;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* --- Stats Section --- */
+.stats {
+    background-color: var(--stats-bg);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    gap: 15%;
+    padding: 24px 5%;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-icon {
+    color: var(--primary-light);
+    margin-right: 8px;
+    display: none; /* Oculto en móvil según el react, pero visible en desktop */
+}
+
+@media (min-width: 640px) {
+    .stat-icon { display: inline-block; }
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-info h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.stat-info span {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* --- Featured Section --- */
+.featured {
+    padding: 80px 5%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+}
+
+.section-subtitle {
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--neutral-dark);
+}
+
+.view-all {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.3s ease;
+    
+    /* Propiedades añadidas para la línea animada */
+    position: relative;
+    padding-bottom: 4px; 
+}
+
+.view-all::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.view-all:hover {
+    color: var(--primary-dark);
+}
+
+.view-all:hover::after {
+    width: 100%; /* La línea crece hacia la derecha */
+}
+
+/* --- Carrusel de Destacados --- */
+.carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-container {
+    display: flex;
+    gap: 40px; /* Aumentamos el gap a 40px */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 40px 24px; 
+    margin: -24px -24px; 
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    width: calc(100% + 48px);
+    
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 24px;
+}
+
+.carousel-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- Tarjetas de Libro --- */
+.book-card {
+    display: flex;
+    flex-direction: column;
+    /* Aumentamos el ancho base a 190px para que ocupen más pantalla y no dejen el último cortado */
+    flex: 0 0 190px; 
+    
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+}
+
+.book-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 8px; /* Bordes un poquito más suaves */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    margin-bottom: 16px;
+    background-color: var(--neutral-light);
+    
+    /* Transición mucho más fluida, prolongada y suave */
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    /* El truco mágico: Hace que el libro crezca desde su base hacia arriba */
+    transform-origin: center bottom; 
+    cursor: pointer;
+}
+
+/* Animación Hover: Agrandamiento y giro leve de la carátula */
+.book-card:hover .book-cover {
+    transform: scale(1.08) rotate(-2deg); /* Crece un 8% y gira sutilmente */
+    /* Sombra proyectada un poco hacia la derecha para complementar el giro a la izquierda */
+    box-shadow: 12px 16px 24px -4px rgba(0, 0, 0, 0.15); 
+}
+
+/* --- Botones del Carrusel --- */
+.carousel-btn {
+    position: absolute;
+    z-index: 20;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: var(--surface-dark);
+    border-radius: 50%;
+    width: 48px;  /* Botones un poco más grandes para facilitar el clic */
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.carousel-btn:hover {
+    background-color: var(--primary);
+    color: #ffffff;
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(1, 174, 107, 0.3);
+}
+
+.carousel-btn.prev { left: -80px; }
+.carousel-btn.next { right: -80px; }
+
+@media (max-width: 768px) {
+    .carousel-btn { display: none; }
+    .carousel-container {
+        padding: 32px 16px;
+        margin: -16px -16px;
+        width: calc(100% + 32px);
+    }
+}
+
+/* --- Textos de la tarjeta --- */
+.book-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--neutral-dark);
+    margin-bottom: 2px;
+    line-height: 1.25;
+}
+
+.book-author {
+    font-size: 0.75rem;
+    color: var(--neutral-mid);
+    margin-bottom: 8px;
+}
+
+.book-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+}
+
+.stars-container {
+    display: flex;
+    color: var(--amber); /* Color dorado extraído del Lovable */
+}
+
+.reviews {
+    color: var(--neutral-mid);
+}
+
+.collaborators {
+    background-color: var(--stats-bg);
+    
+    /* Patrón de ondas sutiles en blanco con 5% de opacidad */
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM42.11 0C32.746 3.696 27.656 4.92 17.385 4.92 7.115 4.92 2.025 3.696-.926 0h-6.224c2.51.73 5.139 1.691 8.233 2.928C10.887 6.6 16.214 7.92 26.772 7.92c10.557 0 15.884-1.32 25.688-5.043 2.476-.924 4.661-1.674 6.725-2.275h-6.335c-.358.13-.72.264-1.089.402l-1.768.661z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    
+    padding: 32px 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.collaborators-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+.collaborators-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 48px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.partner-logo {
+    /* Ajusta la altura máxima para que todos los logos se vean proporcionados */
+    height: 40px; 
+    width: auto;
+    object-fit: contain;
+    
+    /* Magia CSS: Convierte cualquier logo a color/negro en blanco puro */
+    filter: brightness(0) invert(1);
+    opacity: 0.6;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    
+    /* Estilo de respaldo por si la imagen aún no se ha colocado */
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #ffffff;
+    line-height: 40px;
+}
+
+.partner-logo:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+/* --- Footer --- */
+.footer {
+    /* Un tono de verde un poco más profundo que --surface-dark para dar cierre visual */
+    background-color: #011f13; 
+    color: rgba(255, 255, 255, 0.7);
+    /* Una línea verde brillante muy sutil para separar el contenido de arriba del footer */
+    border-top: 2px solid rgba(1, 174, 107, 0.3); 
+    padding: 80px 5% 32px;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr 1fr 1.5fr;
+    gap: 48px;
+    margin-bottom: 64px;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.logo-container-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    text-decoration: none;
+}
+
+.library-logo-footer {
+    max-height: 40px;
+    width: auto;
+    /* Truco: Si tu logo es oscuro, esto lo vuelve blanco para que resalte en el fondo verde */
+    filter: brightness(0) invert(1); 
+    opacity: 0.9;
+}
+
+.library-name-footer {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+}
+
+.footer-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+.footer-title {
+    font-family: var(--font-serif);
+    color: #ffffff;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+    width: fit-content;
+}
+
+/* Efecto hover: El texto se pinta de verde y se desliza sutilmente a la derecha */
+.footer-links a:hover {
+    color: var(--primary);
+    transform: translateX(6px);
+}
+
+.footer-contact p {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.footer-email {
+    color: var(--primary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+.footer-email:hover {
+    color: var(--primary-light);
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 32px;
+    text-align: center;
+    font-size: 0.85rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* --- Responsividad del Footer (Móviles y Tablets) --- */
+@media (max-width: 1024px) {
+    .footer-top {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .footer-description {
+        max-width: 100%;
+    }
+}
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+    .collaborators-logos {
+        gap: 32px;
+    }
+    .partner-logo {
+        height: 32px;
+    }
+}

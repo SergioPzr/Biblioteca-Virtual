@@ -1,0 +1,174 @@
+/* =========================================
+   CABECERA DE PRÉSTAMOS
+========================================= */
+.prestamos-header { 
+    padding: 140px 5% 64px; 
+    background-color: var(--surface-dark); 
+    
+    /* Malla de fondo sutil (heredada de tu Hero) */
+    background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    
+    color: #ffffff; 
+    text-align: center; 
+    position: relative;
+}
+
+.prestamos-header h1 { 
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 12px; 
+    letter-spacing: -0.02em;
+}
+
+.prestamos-header p { 
+    color: var(--primary-light); 
+    font-size: 1.1rem; 
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 300;
+}
+
+/* =========================================
+   CONTENEDOR DE TARJETAS
+========================================= */
+.prestamos-container { 
+    max-width: 1200px; 
+    margin: -32px auto 80px; /* Margen negativo para solapar ligeramente con el header */
+    padding: 0 5%; 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 24px; 
+    position: relative;
+    z-index: 10;
+}
+
+/* =========================================
+   TARJETA DE PRÉSTAMO ACTIVO
+========================================= */
+.prestamo-card { 
+    background: #ffffff; 
+    border: 1px solid #e5e7eb; 
+    border-radius: 14px; 
+    padding: 28px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 16px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; 
+}
+
+.prestamo-card:hover { 
+    transform: translateY(-6px); 
+    box-shadow: 0 16px 32px rgba(1, 174, 107, 0.08); 
+    border-color: rgba(1, 174, 107, 0.3);
+}
+
+.prestamo-estado { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    padding: 6px 12px; 
+    border-radius: 99px; 
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.estado-activo { 
+    background: rgba(1, 174, 107, 0.1); 
+    color: var(--primary-dark); 
+    border: 1px solid rgba(1, 174, 107, 0.2);
+}
+
+.prestamo-titulo { 
+    font-family: var(--font-serif); 
+    font-size: 1.4rem; 
+    color: var(--neutral-dark); 
+    line-height: 1.2; 
+}
+
+/* =========================================
+   FECHAS DEL PRÉSTAMO
+========================================= */
+.prestamo-fechas { 
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 0.85rem; 
+    color: var(--neutral-mid); 
+    border-top: 1px dashed #e5e7eb; 
+    padding-top: 20px; 
+    margin-top: auto; 
+}
+
+.fecha-item { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+}
+
+.fecha-item strong { 
+    color: var(--neutral-dark); 
+    font-size: 1rem;
+}
+
+/* Color destacado para la fecha límite */
+.fecha-item.limite strong {
+    color: #dc2626; /* Rojo alerta */
+}
+/* =========================================
+   PORTADA EN TARJETA
+========================================= */
+.prestamo-card {
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start;
+}
+
+.prestamo-portada-wrapper {
+    flex-shrink: 0;
+    width: 90px;
+    aspect-ratio: 2/3;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.prestamo-portada {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.prestamo-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.prestamo-formato {
+    font-size: 0.88rem;
+    color: var(--neutral-mid);
+    margin: 0;
+}
+
+/* Estado urgente (vence pronto) */
+.estado-urgente {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 99px;
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
