@@ -144,6 +144,7 @@ async function confirmarAgregarLibro() {
         return;
     }
 
+    const urlImagenVal = document.getElementById('add-url-imagen') ? document.getElementById('add-url-imagen').value.trim() : '';
     const payload = {
         isbn: isbnVal,
         titulo: tituloVal,
@@ -167,6 +168,8 @@ async function confirmarAgregarLibro() {
 
         if (res.ok) {
             cerrarModal('modal-agregar-libro');
+            // Guardar imagen en el mapa compartido si se proporcionó ID
+            if (data.idLibro && urlImagenVal) setImagenLibro(data.idLibro, urlImagenVal);
             // Limpiar el formulario nativo
             const form = document.getElementById('form-agregar-libro');
             if (form) form.reset();
@@ -516,6 +519,8 @@ function abrirModalLibro(encodedData) {
     document.getElementById('edit-stock-disponible').value = l.stock_disponible || 0;
     document.getElementById('edit-sinopsis').value        = l.sinopsis || '';
     document.getElementById('modal-libro-titulo-ref').textContent = l.titulo || 'Obra sin título';
+    const editUrlField = document.getElementById('edit-url-imagen');
+    if (editUrlField) editUrlField.value = (typeof getImagenLibro !== 'undefined' && IMAGENES_LIBROS[parseInt(l.id)]) ? IMAGENES_LIBROS[parseInt(l.id)] : '';
 
     const fmtSelect = document.getElementById('edit-formato');
     for (let opt of fmtSelect.options) {
@@ -536,7 +541,7 @@ async function confirmarEdicionLibro() {
         stock_total:       document.getElementById('edit-stock-total').value,
         stock_disponible:  document.getElementById('edit-stock-disponible').value,
         sinopsis:          document.getElementById('edit-sinopsis').value.trim(),
-        url_imagen:        null // Aseguramos que no interfiera ninguna URL obsoleta
+        url_imagen:        null // No se modifica en Oracle (sin columna)
     };
 
     if (!payload.titulo || !payload.isbn) {
@@ -552,6 +557,10 @@ async function confirmarEdicionLibro() {
         });
         const data = await res.json();
         if (res.ok) {
+            // Guardar imagen en el mapa si se proporcionó URL
+            const editUrlImagen = document.getElementById('edit-url-imagen') ? document.getElementById('edit-url-imagen').value.trim() : '';
+            const editId = document.getElementById('edit-libro-id').value;
+            if (editId && editUrlImagen) setImagenLibro(editId, editUrlImagen);
             cerrarModal('modal-libro');
             await cargarInventarioOracle();
             mostrarToast(`✅ ${data.mensaje}`);

@@ -428,7 +428,7 @@ app.put('/api/oracle/libros/:id', async (req, res) => {
     let conn;
     try {
         const idLibro = parseInt(req.params.id);
-        const { isbn, titulo, autor, genero, formato, stock_total, stock_disponible, anio_publicacion, sinopsis, url_imagen } = req.body;
+        const { isbn, titulo, autor, genero, formato, stock_total, stock_disponible, anio_publicacion, sinopsis } = req.body;
 
         conn = await oracledb.getConnection(oracleConfig);
         await conn.execute(
@@ -441,8 +441,7 @@ app.put('/api/oracle/libros/:id', async (req, res) => {
                 stock_total = :stock_total,
                 stock_disponible = :stock_disponible,
                 anio_publicacion = :anio_publicacion,
-                sinopsis = :sinopsis,
-                url_imagen = :url_imagen
+                sinopsis = :sinopsis
              WHERE idLibro = :idLibro`,
             {
                 isbn, titulo, autor, genero, formato,
@@ -450,7 +449,6 @@ app.put('/api/oracle/libros/:id', async (req, res) => {
                 stock_disponible: parseInt(stock_disponible),
                 anio_publicacion: parseInt(anio_publicacion),
                 sinopsis,
-                url_imagen: url_imagen || null,
                 idLibro
             }
         );

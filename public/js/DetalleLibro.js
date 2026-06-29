@@ -1,22 +1,3 @@
-const portadasDeRespaldo = [
-    "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop", // 0
-    "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop", // 1
-    "https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=400&auto=format&fit=crop", // 2
-    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&auto=format&fit=crop", // 3
-    "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=400&auto=format&fit=crop", // 4
-    "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&auto=format&fit=crop", // 5
-    "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&auto=format&fit=crop", // 6
-    "https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400&auto=format&fit=crop", // 7
-    "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&auto=format&fit=crop", // 8
-    "https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a?w=400&auto=format&fit=crop", // 9
-    "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&auto=format&fit=crop", // 10
-    "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400&auto=format&fit=crop", // 11. CAMBIADO Y VERIFICADO (Libros médicos)
-    "https://images.unsplash.com/photo-1614849963640-9cc74b2a826f?w=400&auto=format&fit=crop", // 12
-    "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&auto=format&fit=crop", // 13
-    "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&auto=format&fit=crop", // 14. CAMBIADO Y VERIFICADO (Biblioteca clásica)
-    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&auto=format&fit=crop", // 15. CAMBIADO Y VERIFICADO (Libro jurídico/formal)
-    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop", // 18
-];
 let idLibroActual = null;
 let estrellaSeleccionada = 0;
 
@@ -94,22 +75,19 @@ function poblarInterfaz(libro) {
     document.getElementById('libro-stock').textContent  = `${libro.STOCK_DISPONIBLE} / ${libro.STOCK_TOTAL}`;
     document.getElementById('libro-sinopsis').textContent = libro.SINOPSIS || "Sinopsis no estructurada para esta obra.";
 
-    // 🖼️ PORTADA: Usar URL de Oracle si existe, sino imagen de respaldo por ID
+    // 🖼️ PORTADA: Usar mapa compartido de imagenesLibros.js (consistente con Catálogo)
     const coverImg = document.getElementById('libro-portada');
     const coverPlaceholder = document.getElementById('libro-portada-placeholder');
-    const linkImagen = (libro.URL_IMAGEN && libro.URL_IMAGEN.trim() !== '')
-        ? libro.URL_IMAGEN
-        : portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
+    const linkImagen = getImagenLibro(libro.IDLIBRO);
 
     if (coverImg) {
         coverImg.src = linkImagen;
         coverImg.alt = `Portada de ${libro.TITULO}`;
         coverImg.style.display = 'block';
         if (coverPlaceholder) coverPlaceholder.style.display = 'none';
-        // Si la URL falla, cae al respaldo por ID
         coverImg.onerror = function() {
             this.onerror = null;
-            this.src = portadasDeRespaldo[parseInt(libro.IDLIBRO) % portadasDeRespaldo.length];
+            this.src = getImagenLibro(libro.IDLIBRO);
         };
     }
 

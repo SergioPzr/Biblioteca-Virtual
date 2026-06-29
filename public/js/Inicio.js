@@ -37,43 +37,6 @@ function goToLogin() {
     }, 250); // Ajustado a la velocidad del telón blanco de Transitions.js
 }
 
-// Simulación de los datos del Backend (Se añadieron libros extra para asegurar el funcionamiento del carrusel)
-// Simulación de los datos del Backend con enlaces Ultra Estables de Unsplash
-const mockFeaturedBooks = [
-    {
-        id: '1', title: 'Cien años de soledad', author: 'Gabriel García Márquez', rating: 5, reviews: 1284,
-        coverUrl: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop' // Libro místico/clásico
-    },
-    {
-        id: '2', title: 'La casa de los espíritus', author: 'Isabel Allende', rating: 5, reviews: 932,
-        coverUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&auto=format&fit=crop' // Naturaleza/Realismo mágico
-    },
-    {
-        id: '3', title: 'La ciudad y los perros', author: 'Mario Vargas Llosa', rating: 4, reviews: 612,
-        coverUrl: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&auto=format&fit=crop' // Estructura rígida/militar
-    },
-    {
-        id: '4', title: 'Ficciones', author: 'Jorge Luis Borges', rating: 5, reviews: 1502,
-        coverUrl: 'https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400&auto=format&fit=crop' // Laberinto/Fantasía
-    },
-    {
-        id: '5', title: 'Rayuela', author: 'Julio Cortázar', rating: 5, reviews: 775,
-        coverUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop' // Creativo/Experimental
-    },
-    {
-        id: '6', title: 'Pedro Páramo', author: 'Juan Rulfo', rating: 5, reviews: 845,
-        coverUrl: 'https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&auto=format&fit=crop' // Páramo/Antiguo
-    },
-    {
-        id: '7', title: 'El Aleph', author: 'Jorge Luis Borges', rating: 5, reviews: 1102,
-        coverUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&auto=format&fit=crop' 
-    },
-    {
-        id: '8', title: 'Los Ríos Profundos', author: 'José María Arguedas', rating: 5, reviews: 450,
-        coverUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&auto=format&fit=crop' // Paisaje/Andino
-    }
-];
-
 // Generador de estrellas SVG
 function generateStars(rating) {
     let starsHtml = '';
@@ -86,34 +49,54 @@ function generateStars(rating) {
     return starsHtml;
 }
 
-// Función principal de renderizado
-function renderFeaturedBooks() {
+// Función principal de renderizado — trae libros reales de Oracle
+async function renderFeaturedBooks() {
     const container = document.getElementById('books-container');
     if (!container) return;
     container.innerHTML = '';
 
-    mockFeaturedBooks.forEach(book => {
+    let libros = [];
+    try {
+        const res = await fetch('/api/oracle/libros');
+        const data = await res.json();
+        // Tomar hasta 8 libros con stock disponible primero, luego el resto
+        const conStock = data.filter(l => l.STOCK_DISPONIBLE > 0);
+        const sinStock = data.filter(l => l.STOCK_DISPONIBLE <= 0);
+        libros = [...conStock, ...sinStock].slice(0, 8);
+    } catch (e) {
+        console.warn('No se pudo cargar libros de Oracle para el carrusel.');
+        initCarousel();
+        return;
+    }
+
+    libros.forEach(libro => {
         const card = document.createElement('article');
         card.className = 'book-card';
+        card.style.cursor = 'pointer';
 
-        // Se eliminó la etiqueta del ISBN
+        const coverUrl = (typeof getImagenLibro !== 'undefined')
+            ? getImagenLibro(libro.IDLIBRO)
+            : '';
+
         card.innerHTML = `
-            ${book.coverUrl 
-                ? `<img src="${book.coverUrl}" alt="Portada de ${book.title}" class="book-cover">` 
-                : `<div class="book-cover flex items-center justify-center text-xs text-neutral-mid" style="display:flex;align-items:center;justify-content:center;text-align:center;">Sin Portada</div>`
-            }
-            <h3 class="book-title font-display">${book.title}</h3>
-            <p class="book-author">${book.author}</p>
+            <img src="${coverUrl}" alt="Portada de ${libro.TITULO}" class="book-cover"
+                onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&auto=format&fit=crop';">
+            <h3 class="book-title font-display">${libro.TITULO}</h3>
+            <p class="book-author">${libro.AUTOR || 'Autor desconocido'}</p>
             <div class="book-meta">
-                <div class="stars-container">${generateStars(book.rating)}</div>
-                <span class="reviews">(${book.reviews})</span>
+                <div class="stars-container">${generateStars(5)}</div>
+                <span class="reviews">(${libro.ANIO_PUBLICACION || ''})</span>
             </div>
         `;
+
+        card.addEventListener('click', () => {
+            document.body.classList.add('fade-out');
+            setTimeout(() => { window.location.href = `/DetalleLibro.html?id=${libro.IDLIBRO}`; }, 250);
+        });
 
         container.appendChild(card);
     });
 
-    // Iniciar funcionalidad del carrusel una vez que las tarjetas existen en el DOM
     initCarousel();
 }
 
@@ -183,4 +166,5 @@ function initCarousel() {
 document.addEventListener('DOMContentLoaded', () => {
     inyectarNavRol();
     renderFeaturedBooks();
+    // Nota: incluir /js/imagenesLibros.js ANTES de este script en el HTML
 });

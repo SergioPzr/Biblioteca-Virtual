@@ -239,6 +239,10 @@
                 <label class="modal-label">Sinopsis</label>
                 <textarea id="edit-sinopsis" class="admin-input admin-textarea" placeholder="Descripción de la obra..."></textarea>
             </div>
+            <div class="form-field" style="margin-top:16px;">
+                <label class="modal-label">URL de Portada <span style="font-weight:400;color:#9ca3af;">(opcional)</span></label>
+                <input type="url" id="edit-url-imagen" class="admin-input" placeholder="https://...">
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-ghost" onclick="cerrarModal('modal-libro')">Cancelar</button>
@@ -303,6 +307,10 @@
                     <label class="modal-label">Sinopsis</label>
                     <textarea id="add-sinopsis" class="admin-input admin-textarea" placeholder="Breve descripción..."></textarea>
                 </div>
+                <div class="form-field" style="margin-top:16px;">
+                    <label class="modal-label">URL de Portada <span style="font-weight:400;color:#9ca3af;">(opcional)</span></label>
+                    <input type="url" id="add-url-imagen" class="admin-input" placeholder="https://...">
+                </div>
             </form>
         </div>
         <div class="modal-footer">
@@ -312,6 +320,7 @@
     </div>
 </div>
 
+<script src="/js/imagenesLibros.js"></script>
 <script src="js/Dashboard.js"></script>
 <script src="/js/Transitions.js"></script>
 </body>
