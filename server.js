@@ -25,48 +25,103 @@ const mongoUrl = 'mongodb+srv://admin_proyecto:Proyecto123@clustermongoescobarco
 const dbMongoName = 'db_biblioteca_editorial';
 
 // =========================================================================
-// ENDPOINTS DE AUTENTICACIÓN (MONGODB ATLAS)
+// ENDPOINTS DE AUTENTICACIÓN (ORACLE SQL)
 // =========================================================================
-// POST: Login del Sistema (Autenticación NoSQL Atlas homologada con el frontend)
-// POST: Login del Sistema (Autenticación NoSQL Atlas homologada con el frontend)
-// POST: Login del Sistema (Autenticación NoSQL Atlas homologada con el frontend)
 app.post('/api/auth/login', async (req, res) => {
-    let client;
+    let conn;
     try {
         const { email, password } = req.body;
-        client = await MongoClient.connect(mongoUrl);
-        const db = client.db(dbMongoName);
+        conn = await oracledb.getConnection(oracleConfig);
 
-        // Buscar las credenciales en la colección usuarios_web de Atlas
-        const usuario = await db.collection('usuarios_web').findOne({ email: email, contrasenia: password });
+        const result = await conn.execute(
+            `SELECT idUsuario, nombre, apellido, email, contrasenia_cifrada, rol, estado_cuenta
+             FROM USUARIO WHERE email = :email`,
+            { email },
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
 
-        if (!usuario) {
-            return res.status(401).json({ error: 'Credenciales inválidas en el clúster NoSQL Atlas.' });
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'No existe ninguna cuenta con ese correo electrónico.' });
         }
 
-        // Homologación estricta de roles para hacer match perfecto con los botones del frontend
-        let rolFrontend = usuario.rol.toLowerCase().trim();
-        
-        if (rolFrontend === 'lector' || rolFrontend === 'cliente') {
-            rolFrontend = 'cliente';
-        } else if (rolFrontend === 'administrador' || rolFrontend === 'admin') {
-            rolFrontend = 'admin'; // Forzamos 'admin' para el JavaScript de la interfaz
+        const usuario = result.rows[0];
+
+        if (usuario.CONTRASENIA_CIFRADA !== password) {
+            return res.status(401).json({ error: 'Contraseña incorrecta.' });
         }
+
+        if (usuario.ESTADO_CUENTA.toLowerCase() === 'suspendido') {
+            return res.status(403).json({ error: 'Tu cuenta está suspendida. Contacta al administrador.' });
+        }
+
+        const rolOracle = usuario.ROL.toLowerCase().trim();
+        const rolFrontend = (rolOracle === 'administrador' || rolOracle === 'admin') ? 'admin' : 'cliente';
 
         res.json({
             mensaje: 'Autenticación exitosa',
-            nombre: usuario.nombre,
-            rol: rolFrontend // Envía exactamente 'admin' o 'cliente'
+            nombre: usuario.NOMBRE,
+            apellido: usuario.APELLIDO,
+            rol: rolFrontend
         });
+
     } catch (err) {
-        res.status(500).json({ error: 'Fallo de infraestructura en Atlas: ' + err.message });
+        console.error('Error en login Oracle:', err);
+        res.status(500).json({ error: 'Error interno del servidor: ' + err.message });
     } finally {
-        if (client) client.close();
+        if (conn) { try { await conn.close(); } catch (e) { console.error(e); } }
     }
 });
-// =========================================================================
-// ENDPOINTS OPERACIONALES (ORACLE SQL)
-// =========================================================================
+// POST: Registro de nuevo usuario (rol Lector por defecto)
+app.post('/api/auth/registro', async (req, res) => {
+    let conn;
+    try {
+        const { nombre, email, password } = req.body;
+
+        if (!nombre || !email || !password) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+        }
+
+        conn = await oracledb.getConnection(oracleConfig);
+
+        // Verificar que el email no esté ya registrado
+        const check = await conn.execute(
+            `SELECT idUsuario FROM USUARIO WHERE email = :email`,
+            { email },
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+
+        if (check.rows.length > 0) {
+            return res.status(409).json({ error: 'Ya existe una cuenta con ese correo electrónico.' });
+        }
+
+        // Insertar nuevo usuario con rol Lector y cuenta activa
+        // El nombre completo va en "nombre"; apellido queda vacío por ahora
+        // (el formulario actual solo pide nombre completo)
+        await conn.execute(
+            `INSERT INTO USUARIO (nombre, apellido, email, contrasenia_cifrada, rol, estado_cuenta)
+             VALUES (:nombre, :apellido, :email, :password, 'Lector', 'activo')`,
+            {
+                nombre:   nombre,
+                apellido: '',       // el formulario no pide apellido por separado
+                email:    email,
+                password: password  // en texto plano igual que el resto de la tabla
+            }
+        );
+
+        await conn.commit();
+        res.status(201).json({ mensaje: 'Usuario creado correctamente.' });
+
+    } catch (err) {
+        console.error('Error en registro Oracle:', err);
+        res.status(500).json({ error: 'Error interno del servidor: ' + err.message });
+    } finally {
+        if (conn) {
+            try { await conn.close(); } catch (e) { console.error(e); }
+        }
+    }
+});
+
+
 
 // GET: Listar Obras con el nuevo esquema extendido
 app.get('/api/oracle/libros', async (req, res) => {
@@ -139,18 +194,21 @@ app.get('/api/oracle/prestamos', async (req, res) => {
     try {
         conn = await oracledb.getConnection(oracleConfig);
 
-        // Mapeo exacto respetando "fecha_devuelcion" de tu script
         const result = await conn.execute(
             `SELECT 
-                idPrestamo AS IDPRESTAMO,
-                idUsuario AS IDUSUARIO,
-                idLibro AS IDLIBRO,
-                fecha_prestamo AS FECHASALIDA,
-                fecha_limite AS FECHALIMITE,
-                fecha_devuelcion AS FECHADEVOLUCION,
-                estado AS ESTADO
-             FROM PRESTAMO
-             ORDER BY idPrestamo ASC`,
+                p.idPrestamo      AS IDPRESTAMO,
+                p.idUsuario       AS IDUSUARIO,
+                u.nombre || ' ' || u.apellido AS NOMBRE_USUARIO,
+                p.idLibro         AS IDLIBRO,
+                l.titulo          AS TITULO_LIBRO,
+                p.fecha_prestamo  AS FECHASALIDA,
+                p.fecha_limite    AS FECHALIMITE,
+                p.fecha_devuelcion AS FECHADEVOLUCION,
+                p.estado          AS ESTADO
+             FROM PRESTAMO p
+             JOIN USUARIO u ON p.idUsuario = u.idUsuario
+             JOIN LIBRO   l ON p.idLibro   = l.idLibro
+             ORDER BY p.idPrestamo ASC`,
             [],
             { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );

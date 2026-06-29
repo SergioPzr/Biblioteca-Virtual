@@ -308,8 +308,8 @@ function renderizarTablaPrestamos(listaPrestamos) {
         fila.style.borderBottom = '1px solid #e2e8f0';
         fila.innerHTML = `
             <td style="padding: 12px; font-weight: bold; color: #1e293b;">${idPrestamo}</td>
-            <td style="padding: 12px; color: #1e293b;">User #${usuario}</td>
-            <td style="padding: 12px; font-style: italic; color: #1e293b;">Libro #${libro}</td>
+            <td style="padding: 12px; color: #1e293b;">${p.NOMBRE_USUARIO || 'User #' + (p.IDUSUARIO || '?')}</td>
+            <td style="padding: 12px; font-style: italic; color: #1e293b;">${p.TITULO_LIBRO || 'Libro #' + (p.IDLIBRO || '?')}</td>
             <td style="padding: 12px; color: #64748b;">${fSalida}</td>
             <td style="padding: 12px; color: #64748b;">${fLimite}</td>
             <td style="padding: 12px; color: #64748b; font-weight: 500;">${fDevolucion}</td>
@@ -420,7 +420,18 @@ async function eliminarDocumentoAtlas(idMongo) {
 async function cargarUsuariosAtlas() {
     const tbody = document.getElementById('usuarios-admin-tabla');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--neutral-mid);">Cargando usuarios desde Oracle...</td></tr>`;
+
+    // Actualizar el thead para incluir la columna ID si no la tiene ya
+    const thead = tbody.closest('table')?.querySelector('thead tr');
+    if (thead && !thead.querySelector('th[data-col="id"]')) {
+        const thId = document.createElement('th');
+        thId.setAttribute('data-col', 'id');
+        thId.textContent = 'ID';
+        thId.style.cssText = 'text-align:left;padding:16px;border-bottom:2px solid #e5e7eb;color:var(--neutral-mid);font-size:0.85rem;text-transform:uppercase;';
+        thead.insertBefore(thId, thead.firstChild);
+    }
+
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--neutral-mid);">Cargando usuarios desde Oracle...</td></tr>`;
     try {
         const res = await fetch('/api/oracle/usuarios');
         if (!res.ok) {
@@ -430,7 +441,7 @@ async function cargarUsuariosAtlas() {
         const usuarios = await res.json();
         tbody.innerHTML = '';
         if (!usuarios || usuarios.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--neutral-mid);">No se encontraron usuarios en Oracle.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--neutral-mid);">No se encontraron usuarios en Oracle.</td></tr>`;
             return;
         }
         const membMap = { 'mega fan':'badge-megafan','premium':'badge-premium','estudiante':'badge-estudiante','basico':'badge-basico','básico':'badge-basico' };
@@ -445,6 +456,7 @@ async function cargarUsuariosAtlas() {
             const eClass  = estado==='activo' ? 'badge-activo' : 'badge-inactivo';
             tbody.innerHTML += `
                 <tr style="border-bottom:1px solid #e2e8f0;">
+                    <td style="padding:12px;font-weight:700;color:#64748b;">#${u.IDUSUARIO||'—'}</td>
                     <td style="padding:12px;font-weight:600;color:#1e293b;">${nombre}</td>
                     <td style="padding:12px;color:#475569;">${email}</td>
                     <td style="padding:12px;color:#475569;text-transform:capitalize;">${rol}</td>
@@ -455,7 +467,7 @@ async function cargarUsuariosAtlas() {
         });
     } catch(err) {
         console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:16px;color:#dc2626;">⚠️ Error al cargar: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:16px;color:#dc2626;">⚠️ Error al cargar: ${err.message}</td></tr>`;
     }
 }
 

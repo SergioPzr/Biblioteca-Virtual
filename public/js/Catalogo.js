@@ -104,6 +104,7 @@ function initFilterUI() {
     yearSlider.min = minYear;
     yearSlider.max = maxYear;
     yearSlider.value = minYear;
+    currentMinYear = minYear;
     yearDisplay.textContent = minYear;
     yearMinLabel.textContent = minYear;
     yearMaxLabel.textContent = maxYear;
@@ -161,15 +162,18 @@ function filterBooks() {
     const q = currentQuery.trim().toLowerCase();
     const filteredBooks = librosBaseDeDatos.filter(b => {
         const matchesQuery = !q || b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q);
-        const matchesYear = b.year >= currentMinYear;
+        const matchesYear = !b.year || b.year >= currentMinYear;
         const matchesStock = !filterInStock || b.stock > 0;
         const matchesFormat = selectedFormats.length === 0 || selectedFormats.includes(b.format);
         return matchesQuery && matchesYear && matchesStock && matchesFormat;
     });
 
+    clearTimeout(filterTimeout);
+
+    // Fade out primero
+    booksGrid.style.transition = 'none';
     booksGrid.style.opacity = '0';
     booksGrid.style.transform = 'translateY(6px)';
-    clearTimeout(filterTimeout);
 
     filterTimeout = setTimeout(() => {
         resultsCount.textContent = `${filteredBooks.length} libro${filteredBooks.length !== 1 ? 's' : ''} encontrado${filteredBooks.length !== 1 ? 's' : ''}`;
@@ -182,13 +186,11 @@ function filterBooks() {
             emptyState.style.display = 'none';
             booksGrid.innerHTML = '';
 
-            // Se añadió 'index' en el forEach para mapear de manera cíclica las portadas
             filteredBooks.forEach((book, index) => {
                 const card = document.createElement('article');
                 card.className = 'book-card';
                 card.style.cursor = 'pointer';
 
-                // Usar URL de Oracle si existe, sino usar imagen de respaldo por índice
                 const linkImagen = (book.coverUrl && book.coverUrl.trim() !== '')
                     ? book.coverUrl
                     : portadasDeRespaldo[index % portadasDeRespaldo.length];
@@ -223,6 +225,10 @@ function filterBooks() {
                 booksGrid.appendChild(card);
             });
         }
+
+        // Forzar reflow antes del fade-in para que la transición se dispare correctamente
+        booksGrid.getBoundingClientRect();
+        booksGrid.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
         booksGrid.style.opacity = '1';
         booksGrid.style.transform = 'translateY(0)';
     }, 150);

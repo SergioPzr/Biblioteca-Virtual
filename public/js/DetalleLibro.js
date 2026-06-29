@@ -158,7 +158,7 @@ function renderResenas(resenas) {
         const pct = Math.round((dist[n] / total) * 100);
         barsContainer.innerHTML += `
             <div class="rating-bar-row">
-                <span class="bar-label">${n} ★</span>
+                <span class="bar-label" style="width:32px;min-width:32px;display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:0.82rem;color:#374151;">${n}<span style="color:#f59e0b;font-size:0.9rem;line-height:1;">★</span></span>
                 <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
                 <span class="bar-count">${dist[n]}</span>
             </div>
