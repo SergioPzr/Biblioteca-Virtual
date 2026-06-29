@@ -166,6 +166,32 @@ app.get('/api/oracle/prestamos', async (req, res) => {
     }
 });
 
+
+// =========================================================================
+// 🗑️ ELIMINAR REGISTRO DE PRÉSTAMO INDIVIDUAL (ORACLE SQL)
+// =========================================================================
+app.delete('/api/oracle/prestamos/:id', async (req, res) => {
+    let conn;
+    try {
+        const idPrestamo = parseInt(req.params.id);
+        conn = await oracledb.getConnection(oracleConfig);
+
+        await conn.execute(
+            `DELETE FROM PRESTAMO WHERE idPrestamo = :idPrestamo`,
+            { idPrestamo }
+        );
+        
+        await conn.commit();
+        res.json({ mensaje: 'El registro del préstamo ha sido eliminado de Oracle correctamente.' });
+    } catch (err) {
+        if (conn) await conn.rollback();
+        console.error("Error al eliminar el préstamo:", err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        if (conn) await conn.close();
+    }
+});
+
 // 📤 3. LISTAR TODAS LAS MULTAS (GET)
 app.get('/api/oracle/multas', async (req, res) => {
     let conn;

@@ -266,7 +266,7 @@ function renderizarTablaPrestamos(listaPrestamos) {
     if (!listaPrestamos || listaPrestamos.length === 0) {
         tablaBody.innerHTML = `
             <tr>
-                <td colspan="7" style="padding: 16px; text-align: center; color: #64748b;">
+                <td colspan="8" style="padding: 16px; text-align: center; color: #64748b;">
                     No existen registros de préstamos activos en el sistema.
                 </td>
             </tr>`;
@@ -304,9 +304,35 @@ function renderizarTablaPrestamos(listaPrestamos) {
             <td style="padding: 12px; color: #64748b;">${fLimite}</td>
             <td style="padding: 12px; color: #64748b; font-weight: 500;">${fDevolucion}</td>
             <td style="padding: 12px;">${badgeEstado}</td>
+            <td style="padding: 12px; text-align: center;">
+                <button onclick="eliminarPrestamoOracle(${idPrestamo})" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border: none; padding: 8px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s;" title="Eliminar Préstamo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </td>
         `;
         tablaBody.appendChild(fila);
     });
+}
+
+// Functión para eliminar préstamo y limpiar dependencias
+async function eliminarPrestamoOracle(idPrestamo) {
+    if (!confirm(`⚠️ ¿Está seguro de eliminar permanentemente el préstamo N° ${idPrestamo}?\nEsta acción removerá la restricción en Oracle.`)) return;
+
+    try {
+        const res = await fetch(`/api/oracle/prestamos/${idPrestamo}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (res.ok) {
+            mostrarToast(`🗑️ ${data.mensaje}`);
+            // Refrescar paneles implicados de manera inmediata
+            await obtenerTodosLosPrestamos();
+            await cargarInventarioOracle();
+        } else {
+            alert(`⚠️ Error al remover el préstamo:\n${data.error}`);
+        }
+    } catch (err) {
+        alert("Fallo de comunicación asíncrona: " + err.message);
+    }
 }
 
 // =========================================================================
